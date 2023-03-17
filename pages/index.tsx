@@ -1,15 +1,14 @@
 import Head from 'next/head'
 import { styled } from '@/stitches.config'
 import { useState } from 'react'
+import { SidePanel } from '@/components/Sidepanel'
 
 const Main = styled("main", {
   minHeight: "100vh",
   display: 'flex',
-  flexDirection: 'column',
   minWidth: "100vw",
-  justifyContent: 'center',
+  justifyContent: 'space-between',
   alignItems: 'center',
-  gap: '$6'
 })
 
 const StyledHeader = styled("th", {
@@ -33,11 +32,11 @@ const StyledTable = styled("table", {
 })
 
 const StyledRow = styled("tr", {
-  "&:not(:last-child) td": {
+  "& td": {
     borderBottom: '1px solid $fgBorder',
     borderRight: '1px solid $fgBorder'
   },
-  "&:not(:last-child) th": {
+  " th": {
     borderBottom: '1px solid $fgBorder',
     borderRight: '1px solid $fgBorder'
   },
@@ -66,6 +65,9 @@ export default function Home() {
   }])
 
 
+  const [selected, setSelected] = useState('')
+
+
   const getHeaders = (tableData: object) => {
     if (typeof tableData === 'object' && tableData !== null) {
       return Object.keys(tableData)
@@ -75,74 +77,83 @@ export default function Home() {
 
   const headerValues = getHeaders(data[0]);
 
-  console.log(data)
 
   return (
     <Main>
-      <div style={{ position: 'relative' }}>
-        <StyledTable>
-          <tbody>
-            <StyledRow>
-              {headerValues && headerValues.map((header, i) => {
-                return <StyledHeader contentEditable suppressContentEditableWarning={true} key={i}
-                > {header} </StyledHeader>
+      <div style={{ position: 'relative', display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ position: 'relative' }}>
+          <StyledTable onClick={() => { setSelected("table") }}
+            css={{
+              border: selected === 'table' ? "2px solid $orange10" : ""
+            }}>
+            <tbody>
+              <StyledRow>
+                {headerValues && headerValues.map((header, i) => {
+                  return <StyledHeader contentEditable suppressContentEditableWarning={true} key={i}
+                  > {header} </StyledHeader>
+                })}
+              </StyledRow>
+              {data.map((row, i) => {
+                const cells = Object.keys(row).map((key, i) => {
+                  const value = row[key] as string;
+                  console.log(value)
+                  return <StyledCell key={i} contentEditable suppressContentEditableWarning={true}>{value}</StyledCell>
+                })
+                return (
+                  <StyledRow key={i}>{cells}</StyledRow>
+                )
               })}
-            </StyledRow>
-            {data.map((row, i) => {
-              const cells = Object.keys(row).map((key, i) => {
-                const value = row[key] as string;
-                console.log(value)
-                return <StyledCell key={i} contentEditable suppressContentEditableWarning={true}>{value}</StyledCell>
+            </tbody>
+          </StyledTable>
+          <Button css={{
+            position: 'absolute',
+            right: -32,
+            top: 6
+          }}
+            onClick={() => {
+              const newData = [...data];
+
+              //This feels like a hack but ok
+              const firstrow = newData[0];
+              let i = 1;
+              let newKey = "newField"
+              while (firstrow.hasOwnProperty(newKey)) {
+                newKey = "newField_" + (i + 1);
+                i++
+              }
+              newData.map((row) => {
+                row[newKey] = ''
               })
-              return (
-                <StyledRow key={i}>{cells}</StyledRow>
-              )
-            })}
-            <StyledRow>
-            </StyledRow>
-          </tbody>
-        </StyledTable>
-        <Button css={{
-          position: 'absolute',
-          right: -32,
-          top: 6
-        }}
-          onClick={() => {
-            const newData = [...data];
-
-            //This feels like a hack but ok
-            const firstrow = newData[0];
-            let i = 1;
-            let newKey = "newField"
-            while (firstrow.hasOwnProperty(newKey)) {
-              newKey = "newField_" + (i + 1);
-              i++
+              console.log(newData)
+              setData(newData)
+            }}>
+            +
+          </Button>
+          <Button css={{
+            position: 'absolute',
+            left: 9,
+            bottom: -32
+          }} onClick={() => {
+            if (headerValues) {
+              let newObject: Row = {};
+              for (const key in headerValues) {
+                newObject[headerValues[key]] = ""
+              }
+              setData([...data, newObject])
             }
-
-            newData.map((row) => {
-              row[newKey] = ''
-            })
-            console.log(newData)
-            setData(newData)
-
-          }}>
-          +
-        </Button>
-        <Button css={{
-          position: 'absolute',
-          left: 9,
-          bottom: -32
-        }} onClick={() => {
-          if (headerValues) {
-            let newObject: Row = {};
-            for (const key in headerValues) {
-              newObject[headerValues[key]] = ""
-            }
-            setData([...data, newObject])
-          }
-        }}> + </Button>
+          }}> + </Button>
+        </div>
 
       </div>
+      <SidePanel>
+
+        <h2>{selected} </h2>
+
+        <pre>
+          {JSON.stringify(data, null, 2)}
+        </pre>
+
+      </SidePanel>
     </Main >
   )
 }
