@@ -31,7 +31,6 @@ type Row = {
 
 export default function Home() {
 
-  const [headers, setHeaders] = useState(["header1", "header2", "header3"])
   const [data, setData] = useState<Row[]>([{
     name: "Alfreds Futterkiste",
     location: "Germany",
@@ -64,23 +63,32 @@ export default function Home() {
                 > {header} </StyledHeader>
               })}
               <StyledHeader> <button onClick={() => {
-                setHeaders([...headers, "new Header"])
+
               }}> + </button></StyledHeader>
             </tr>
             {data.map((row, i) => {
               const cells = Object.keys(row).map((key, i) => {
                 const value = row[key] as string;
                 console.log(value)
-                return <StyledCell key={i}>{value}</StyledCell>
+                return <StyledCell key={i} contentEditable suppressContentEditableWarning={true}>{value}</StyledCell>
               })
               return (
                 <tr key={i}>{cells}</tr>
               )
             })}
-
           </tbody>
         </table>
+        <button onClick={() => {
+
+          if (headerValues) {
+            let newObject: Row = {};
+            for (const value in headerValues) {
+              newObject[value] = "1"
+            }
+            setData([...data, newObject])
+          }
+        }}> + </button>
       </div>
-    </Main>
+    </Main >
   )
 }
