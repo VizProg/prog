@@ -35,11 +35,11 @@ export default function Home() {
   const [data, setData] = useState<Row[]>([{
     name: "Alfreds Futterkiste",
     location: "Germany",
-    header3: ""
+    header3: "2"
   }, {
     name: "david kim",
     location: "korea",
-    header3: ""
+    header3: "1"
   }])
 
 
@@ -52,7 +52,6 @@ export default function Home() {
 
 
   const headerValues = getHeaders(data[0]);
-  console.log(headerValues)
 
   return (
     <Main>
@@ -60,49 +59,22 @@ export default function Home() {
         <table>
           <tbody>
             <tr>
-              {headers.map((header) => {
-                return <StyledHeader contentEditable suppressContentEditableWarning={true}
+              {headerValues && headerValues.map((header, i) => {
+                return <StyledHeader contentEditable suppressContentEditableWarning={true} key={i}
                 > {header} </StyledHeader>
               })}
               <StyledHeader> <button onClick={() => {
                 setHeaders([...headers, "new Header"])
               }}> + </button></StyledHeader>
             </tr>
-            <tr>
-              <StyledCell contentEditable suppressContentEditableWarning={true}
-              >Alfreds Futterkiste</StyledCell>
-              <StyledCell>Maria Anders</StyledCell>
-              <StyledCell>Germany</StyledCell>
-            </tr>
-            <tr>
-              <StyledCell>Centro comercial Moctezuma</StyledCell>
-              <StyledCell>Francisco Chang</StyledCell>
-              <StyledCell>Mexico</StyledCell>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div>
-        <table>
-          <tbody>
-            <tr>
-              {headerValues && headerValues.map((header) => {
-                return <StyledHeader contentEditable suppressContentEditableWarning={true}
-                > {header} </StyledHeader>
-              })}
-              <StyledHeader> <button onClick={() => {
-                setHeaders([...headers, "new Header"])
-              }}> + </button></StyledHeader>
-            </tr>
-            {data.map((row) => {
-              const cells = Object.keys(row).map((key) => {
+            {data.map((row, i) => {
+              const cells = Object.keys(row).map((key, i) => {
                 const value = row[key] as string;
                 console.log(value)
-                return <StyledCell> {value}</StyledCell>
+                return <StyledCell key={i}>{value}</StyledCell>
               })
-
               return (
-                <tr> {cells} </tr>
+                <tr key={i}>{cells}</tr>
               )
             })}
 
