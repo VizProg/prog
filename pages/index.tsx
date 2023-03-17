@@ -15,13 +15,37 @@ const Main = styled("main", {
 const StyledHeader = styled("th", {
   width: '100%',
   textAlign: 'start',
-  padding: '$2 $3'
+  padding: '$2 $3',
 })
 
 const StyledCell = styled("td", {
   width: '100%',
   textAlign: 'start',
-  padding: '$2 $3'
+  padding: '$2 $3',
+  minWidth: '100px',
+
+})
+
+const StyledTable = styled("table", {
+  border: '1px solid $fgBorder',
+  borderRadius: '$2',
+  borderCollapse: 'collapse'
+})
+
+const StyledRow = styled("tr", {
+  "&:not(:last-child) td": {
+    borderBottom: '1px solid $fgBorder',
+    borderRight: '1px solid $fgBorder'
+  },
+  "&:not(:last-child) th": {
+    borderBottom: '1px solid $fgBorder',
+    borderRight: '1px solid $fgBorder'
+  },
+
+})
+
+const Button = styled("button", {
+
 })
 
 type Row = {
@@ -34,11 +58,11 @@ export default function Home() {
   const [data, setData] = useState<Row[]>([{
     name: "Alfreds Futterkiste",
     location: "Germany",
-    header3: "2"
+    header3: ""
   }, {
     name: "david kim",
     location: "korea",
-    header3: "1"
+    header3: ""
   }])
 
 
@@ -49,23 +73,21 @@ export default function Home() {
     //to-do what if data is array?
   }
 
-
   const headerValues = getHeaders(data[0]);
+
+  console.log(data)
 
   return (
     <Main>
-      <div>
-        <table>
+      <div style={{ position: 'relative' }}>
+        <StyledTable>
           <tbody>
-            <tr>
+            <StyledRow>
               {headerValues && headerValues.map((header, i) => {
                 return <StyledHeader contentEditable suppressContentEditableWarning={true} key={i}
                 > {header} </StyledHeader>
               })}
-              <StyledHeader> <button onClick={() => {
-
-              }}> + </button></StyledHeader>
-            </tr>
+            </StyledRow>
             {data.map((row, i) => {
               const cells = Object.keys(row).map((key, i) => {
                 const value = row[key] as string;
@@ -73,21 +95,44 @@ export default function Home() {
                 return <StyledCell key={i} contentEditable suppressContentEditableWarning={true}>{value}</StyledCell>
               })
               return (
-                <tr key={i}>{cells}</tr>
+                <StyledRow key={i}>{cells}</StyledRow>
               )
             })}
+            <StyledRow>
+            </StyledRow>
           </tbody>
-        </table>
-        <button onClick={() => {
+        </StyledTable>
+        <Button css={{
+          position: 'absolute',
+          right: -32,
+          top: 6
+        }}
+          onClick={() => {
+            const newData = [...data];
 
+            newData.map((row, i) => {
+              newData[i] = { ...row, newField: "" }
+            })
+
+            setData(newData)
+
+          }}>
+          +
+        </Button>
+        <Button css={{
+          position: 'absolute',
+          left: 9,
+          bottom: -32
+        }} onClick={() => {
           if (headerValues) {
             let newObject: Row = {};
-            for (const value in headerValues) {
-              newObject[value] = "1"
+            for (const key in headerValues) {
+              newObject[headerValues[key]] = ""
             }
             setData([...data, newObject])
           }
-        }}> + </button>
+        }}> + </Button>
+
       </div>
     </Main >
   )
