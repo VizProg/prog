@@ -110,10 +110,19 @@ export default function Home() {
           onClick={() => {
             const newData = [...data];
 
-            newData.map((row, i) => {
-              newData[i] = { ...row, newField: "" }
-            })
+            //This feels like a hack but ok
+            const firstrow = newData[0];
+            let i = 1;
+            let newKey = "newField"
+            while (firstrow.hasOwnProperty(newKey)) {
+              newKey = "newField_" + (i + 1);
+              i++
+            }
 
+            newData.map((row) => {
+              row[newKey] = ''
+            })
+            console.log(newData)
             setData(newData)
 
           }}>
