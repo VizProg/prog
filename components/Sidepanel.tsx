@@ -10,10 +10,10 @@ const Container = styled("div", {
   borderLeft: '1px solid $fgBorder',
   backgroundColor: '$mauve2',
   minHeight: '100vh',
+  flex: "0 1 0"
 })
 
 export const SidePanel = ({ children }: { children: React.ReactNode }) => {
-
 
   return (
     <Container>

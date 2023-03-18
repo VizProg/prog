@@ -20,6 +20,32 @@ const globalStyles = globalCss({
     fontFamily: "$untitled",
   },
 
+  "::-webkit-scrollbar": {
+    width: '$2',
+  },
+
+  /* Track */
+  "::-webkit-scrollbar-track": {
+    background: 'transparent',
+  },
+  
+  /* Handle */
+  "::-webkit-scrollbar-thumb": {
+    background: '$mauve8',
+    borderRadius: "$pill",
+    
+
+  },
+  "::-webkit-scrollbar-corner": {
+    background: 'transparent',
+    
+
+  },
+
+  /* Handle on hover */
+  "::-webkit-scrollbar-thumb:hover":{
+  },
+
   svg: { display: "block" },
 
   "pre, code": { margin: 0, fontFamily: "$mono" },

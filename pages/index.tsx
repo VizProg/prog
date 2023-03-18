@@ -1,77 +1,44 @@
-import Head from 'next/head'
 import { styled } from '@/stitches.config'
 import { useState } from 'react'
 import { SidePanel } from '@/components/Sidepanel'
-import { EditableTable } from '@/components/editableTable'
+//import { EditableTable } from '@/components/editableTable'
 import { ReadTable } from '@/components/readTable'
 import type { Row } from "@/types"
 
 const Main = styled("main", {
   minHeight: "100vh",
-  display: 'flex',
   minWidth: "100vw",
+  display: 'flex',
   justifyContent: 'space-between',
-  alignItems: 'center',
-})
-
-const StyledHeader = styled("th", {
-  width: '100%',
-  textAlign: 'start',
-  padding: '$2 $3',
-})
-
-const StyledCell = styled("td", {
-  width: '100%',
-  textAlign: 'start',
-  padding: '$2 $3',
-  minWidth: '100px',
-
-})
-
-const StyledTable = styled("table", {
-  border: '1px solid $fgBorder',
-  borderRadius: '$2',
-  borderCollapse: 'collapse'
-})
-
-const StyledRow = styled("tr", {
-  "& td": {
-    borderBottom: '1px solid $fgBorder',
-    borderRight: '1px solid $fgBorder'
-  },
-  " th": {
-    borderBottom: '1px solid $fgBorder',
-    borderRight: '1px solid $fgBorder'
-  },
-
+  height: '100%'
 })
 
 const Button = styled("button", {
 
 })
 
+const CodeBlock = styled("pre", {
+  backgroundColor: '$mauve2',
+  color: '$TextPrimary',
+  padding: '$2',
+  borderRadius: '$2',
+  border: '1px solid $fgBorder',
+  maxHeight: '320px',
+  overflow: 'auto',
+})
 
 export default function Home() {
 
-  const [data, setData] = useState<Row[]>([{
-    name: "Alfreds Futterkiste",
-    location: "Germany",
-    header3: ""
-  }, {
-    name: "david kim",
-    location: "korea",
-    header3: ""
-  }])
-
-  const readData = [{
-    name: "Alfreds Futterkiste",
-    location: "Germany",
-    header3: ""
-  }, {
-    name: "david kim",
-    location: "korea",
-    header3: ""
-  }]
+  /* const [data, setData] = useState<Row[]>([{
+      name: "Alfreds Futterkiste",
+      location: "Germany",
+      header3: ""
+    }, {
+      name: "david kim",
+      location: "korea",
+      header3: ""
+      }]) */
+      //detect drag effect  
 
 
   const [selected, setSelected] = useState("")
@@ -79,18 +46,23 @@ export default function Home() {
   const [apiData, setAPIData] = useState<Row[]>([])
   return (
     <Main>
-      <div style={{ display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: '100px' }}>
-        <EditableTable data={data} setData={(data: Row[]) => setData(data)} selected={selected === "editable_table" ? true : false} onClick={() => { setSelected("editable_table") }} />
+      <div style={{ display: 'flex', width: '100%', maxHeight: '100vh', overflow: 'auto', flexDirection: 'column', gap: '100px', padding: '40px' }}>
+        { /* <EditableTable data={data} setData={(data: Row[]) => setData(data)} selected={selected === "editable_table" ? true : false} onClick={() => { setSelected("editable_table") }} /> */}
         <ReadTable data={apiData} selected={selected === "read_table" ? true : false} onClick={() => { setSelected("read_table") }} />
       </div>
       <SidePanel>
 
         <h2>{selected} </h2>
 
-        <pre>
-          {JSON.stringify(data, null, 2)}
-        </pre>
-
+        <div>
+          <label htmlFor={"data"}>Data</label>
+          <CodeBlock id={"data"} draggable={true} onDrag={(e)=>{
+            console.log(e)
+            console.log("here")
+          }}>
+            {JSON.stringify(apiData, null, 2)}
+          </CodeBlock>
+        </div>
         <form onSubmit={(e) => {
           e.preventDefault();
           fetch((apiUrl)).then(async (response) => {
