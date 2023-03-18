@@ -5,7 +5,7 @@ const Container = styled("div", {
   display: 'flex',
   flexDirection: 'column',
   gap: '$3',
-  minWidth: '320px',
+  minWidth: '420px',
   padding: '$3',
   borderLeft: '1px solid $fgBorder',
   backgroundColor: '$mauve2',
