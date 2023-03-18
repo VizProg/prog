@@ -3,6 +3,7 @@ import { styled } from '@/stitches.config'
 import { useState } from 'react'
 import { SidePanel } from '@/components/Sidepanel'
 import { EditableTable } from '@/components/editableTable'
+import { ReadTable } from '@/components/readTable'
 
 const Main = styled("main", {
   minHeight: "100vh",
@@ -65,13 +66,25 @@ export default function Home() {
     header3: ""
   }])
 
+  const readData = [{
+    name: "Alfreds Futterkiste",
+    location: "Germany",
+    header3: ""
+  }, {
+    name: "david kim",
+    location: "korea",
+    header3: ""
+  }]
 
-  const [selected, setSelected] = useState(false)
 
+  const [selected, setSelected] = useState("")
+  const [apiUrl, setUrl] = useState("https://api.github.com/users/daviddkkim/events")
+  const [apiData, setAPIData] = useState<Row[]>([])
   return (
     <Main>
-      <div style={{ position: 'relative', display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-        <EditableTable data={data} setData={(data: Row[]) => setData(data)} selected={selected} onClick={() => { setSelected(true) }} />
+      <div style={{ display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: '100px' }}>
+        <EditableTable data={data} setData={(data: Row[]) => setData(data)} selected={selected === "editable_table" ? true : false} onClick={() => { setSelected("editable_table") }} />
+        <ReadTable data={apiData} selected={selected === "read_table" ? true : false} onClick={() => { setSelected("read_table") }} />
       </div>
       <SidePanel>
 
@@ -81,7 +94,21 @@ export default function Home() {
           {JSON.stringify(data, null, 2)}
         </pre>
 
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          fetch((apiUrl)).then(async (response) => {
+            const json = await response.json();
+            setAPIData(json)
+          })
+        }}>
+          <input type="text" placeholder='https://api.github.com/users/${githubUser}/events' value={apiUrl} onChange={(event) => {
+            setUrl(event.currentTarget.value)
+          }} />
+          <Button type={"submit"}> Run </Button>
+        </form>
       </SidePanel>
+
+
     </Main >
   )
 }

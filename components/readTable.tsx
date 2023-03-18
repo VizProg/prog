@@ -33,12 +33,27 @@ const StyledRow = styled("tr", {
 
 })
 
-const Button = styled("button", {
+const DivTable = styled("div", {
+  minWidth: "240px",
+  borderRadius: '0px',
+  border: ' 1px solid $fgBorder',
+  height: '160px',
+})
 
+const DivTableHeader = styled("div", {
+  height: '36px',
+  borderBottom: '1px solid $fgBorder'
+})
+
+const Box = styled("div", {
+  display: 'flex',
+  justifyContent: ' center',
+  alignItems: "center",
+  height: 'calc(100% - 36px)'
 })
 
 type Row = {
-  [key: string]: unknown;
+  [key: string]: string | number | Date | object;
 };
 
 
@@ -57,12 +72,29 @@ export const ReadTable = ({
   selected = false,
   onClick }: {
     data: Row[],
-    setData: (data: Row[]) => void
     onClick: () => void,
     selected: boolean
   }) => {
 
+  console.log(data)
 
+  if (data.length < 1 || !data) {
+
+    return (
+      <DivTable onClick={() => { onClick() }}
+        css={{
+          border: selected ? "2px solid $orange10" : ""
+        }}>
+        <DivTableHeader>
+
+        </DivTableHeader>
+        <Box>
+          No rows were found
+        </Box>
+      </DivTable>
+
+    )
+  }
 
 
 
@@ -74,7 +106,7 @@ export const ReadTable = ({
   }
 
   const headerValues = getHeaders(data[0]);
-
+  console.log(headerValues)
   return (
 
     <div style={{ position: 'relative' }}>
@@ -85,15 +117,15 @@ export const ReadTable = ({
         <tbody>
           <StyledRow>
             {headerValues && headerValues.map((header, i) => {
-              return <StyledHeader contentEditable suppressContentEditableWarning={true} key={i}
+              return <StyledHeader key={i}
               > {header} </StyledHeader>
             })}
           </StyledRow>
           {data.map((row, i) => {
             const cells = Object.keys(row).map((key, i) => {
+              if (typeof row[key] === "object") return;
               const value = row[key] as string;
-              console.log(value)
-              return <StyledCell key={i} contentEditable suppressContentEditableWarning={true}>{value}</StyledCell>
+              return <StyledCell key={i}>{value}</StyledCell>
             })
             return (
               <StyledRow key={i}>{cells}</StyledRow>
