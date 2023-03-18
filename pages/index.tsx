@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { SidePanel } from '@/components/Sidepanel'
 import { EditableTable } from '@/components/editableTable'
 import { ReadTable } from '@/components/readTable'
+import type { Row } from "@/types"
 
 const Main = styled("main", {
   minHeight: "100vh",
@@ -48,10 +49,6 @@ const StyledRow = styled("tr", {
 const Button = styled("button", {
 
 })
-
-type Row = {
-  [key: string]: unknown;
-};
 
 
 export default function Home() {

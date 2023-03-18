@@ -52,13 +52,6 @@ const Box = styled("div", {
   height: 'calc(100% - 36px)'
 })
 
-type Row = {
-  [key: string]: string | number | Date | object;
-};
-
-
-
-
 export const ReadTable = ({
   data = [{
     name: "Alfreds Futterkiste",

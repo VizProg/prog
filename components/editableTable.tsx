@@ -1,5 +1,6 @@
 import React from "react"
 import { styled } from "@/stitches.config"
+import type { Row } from "@/types"
 
 const StyledHeader = styled("th", {
   width: '100%',
@@ -36,13 +37,6 @@ const StyledRow = styled("tr", {
 const Button = styled("button", {
 
 })
-
-type Row = {
-  [key: string]: unknown;
-};
-
-
-
 
 export const EditableTable = ({
   data = [{
