@@ -1,9 +1,8 @@
-import { ChangeEvent, useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Handle, Position } from 'reactflow';
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
-import * as ts from "typescript";
 import { styled } from '@/stitches.config';
 import { EditorView } from "@codemirror/view";
 
@@ -18,9 +17,9 @@ const CodeContainer = styled('div', {
 const OutputContainer = styled("pre", {
   backgroundColor: '$mauve3',
   minHeight: '48px',
-  padding:' $2',
-  fontSize:'$2',
-  width:'100%',
+  padding: ' $2',
+  fontSize: '$2',
+  width: '100%',
   whiteSpace: 'pre-wrap',
   wordWrap: 'break-word',
 })
@@ -48,40 +47,40 @@ export function CodeNode({ data }: {
       return [e];
     }
   }, [code]);
-  
+
 
   const onChange = useCallback((value: string, viewUpdate: any) => {
     setCode(value)
   }, []);
-  
+
 
 
   return (
     <>
       <Handle type="target" position={Position.Top} />
       <CodeContainer>
-      <CodeMirror
-      value={code}
-      height="200px"
-      minWidth='320px'
-      maxWidth='320px'
-      theme={'dark'}
-      extensions={[javascript({ jsx: false, typescript: true }), EditorView.lineWrapping]}
-      onChange={onChange}
-    />
+        <CodeMirror
+          value={code}
+          height="200px"
+          minWidth='320px'
+          maxWidth='320px'
+          theme={'dark'}
+          extensions={[javascript({ jsx: false, typescript: true }), EditorView.lineWrapping]}
+          onChange={onChange}
+        />
         <button onClick={async () => {
           try {
-          //setCode(ts.transpile(code));
-          const result = typeof f === "function"? await f({code}) : null;
-          
-           const outputEl = document.getElementById("output");
-          if (outputEl) { outputEl.innerHTML = JSON.stringify(result, null, 2) }
-          } catch(e) {
+            const result = typeof f === "function" ? await f({ code }) : null;
+
+            const outputEl = document.getElementById("output");
+            if (outputEl) { outputEl.innerHTML = JSON.stringify(result, null, 2) }
+          } catch (e) {
             const outputEl = document.getElementById("output");
             console.error(e)
             if (outputEl) { outputEl.innerHTML = "Unable to run the code. Make sure your code is correct." }
-         
-        }}}> Run</button>
+
+          }
+        }}> Run</button>
         <OutputContainer id={"output"}></OutputContainer>
       </CodeContainer>
       <Handle type="source" position={Position.Bottom} id="a" />

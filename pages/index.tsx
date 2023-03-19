@@ -1,12 +1,9 @@
 import { styled } from '@/stitches.config'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { SidePanel } from '@/components/Sidepanel'
-//import { EditableTable } from '@/components/editableTable'
 import { ReadTable } from '@/components/readTable'
 import type { Row } from "@/types"
 import ReactFlow, {
   addEdge,
-  FitViewOptions,
   applyNodeChanges,
   applyEdgeChanges,
   Node,
@@ -52,7 +49,6 @@ export default function Home() {
 
 
   const [selected, setSelected] = useState("")
-  const [apiUrl, setUrl] = useState("https://api.github.com/users/daviddkkim/events")
   const [apiData, setAPIData] = useState<Row[]>([])
 
   const nodeTypes = useMemo(() => ({ customNode: CustomNode, codeNode: CodeNode }), []);
