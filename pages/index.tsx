@@ -59,9 +59,9 @@ export default function Home() {
 
   const initialNodes: Node[] = useMemo(() => {
     return [
-      { id: '1', data: <ReadTable data={apiData.slice(0,5)} selected={selected === "read_table" ? true : false} onClick={() => { setSelected("read_table") }} />, position: { x: 5, y: 5 }, type: 'customNode' },
+      { id: '1', data: <ReadTable data={apiData.slice(0, 5)} selected={selected === "read_table" ? true : false} onClick={() => { setSelected("read_table") }} />, position: { x: 5, y: 5 }, type: 'customNode' },
       { id: '2', data: { label: 'Node 2' }, position: { x: 400, y: 400 }, type: 'output' },
-      { id: '3', data: { code: "\n\n\n"}, position: { x: 400, y: 700 },  type: 'codeNode' },
+      { id: '3', data: { code: `fetch("https://api.github.com/users/daviddkkim/events").then((res) => res.json());` }, position: { x: 400, y: 700 }, type: 'codeNode' },
 
     ];
   }, [apiData, selected])
@@ -104,7 +104,7 @@ export default function Home() {
           proOptions={proOptions}
         />
       </div>
-{/*       <SidePanel>
+      {/*       <SidePanel>
 
         <h2>{selected} </h2>
 

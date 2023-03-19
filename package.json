@@ -10,6 +10,7 @@
     },
     "dependencies": {
         "@codemirror/lang-javascript": "^6.1.4",
+        "@codemirror/view": "^6.9.2",
         "@radix-ui/colors": "^0.1.8",
         "@stitches/react": "^1.2.8",
         "@types/node": "18.15.3",
