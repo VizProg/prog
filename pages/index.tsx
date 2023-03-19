@@ -61,7 +61,7 @@ export default function Home() {
     return [
       { id: '1', data: <ReadTable data={apiData.slice(0,5)} selected={selected === "read_table" ? true : false} onClick={() => { setSelected("read_table") }} />, position: { x: 5, y: 5 }, type: 'customNode' },
       { id: '2', data: { label: 'Node 2' }, position: { x: 400, y: 400 }, type: 'output' },
-      { id: '3', data: { }, position: { x: 400, y: 700 },  type: 'codeNode' },
+      { id: '3', data: { code: "\n\n\n"}, position: { x: 400, y: 700 },  type: 'codeNode' },
 
     ];
   }, [apiData, selected])
