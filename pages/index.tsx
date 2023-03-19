@@ -17,6 +17,7 @@ import ReactFlow, {
 } from 'reactflow'
 import 'reactflow/dist/style.css';
 import { CustomNode } from '@/components/customNode'
+import { CodeNode } from '@/components/CodeNode'
 
 
 const Main = styled("main", {
@@ -51,15 +52,17 @@ export default function Home() {
 
 
   const [selected, setSelected] = useState("")
-  const [apiUrl, setUrl] = useState("https://api.github.com/user/issues")
+  const [apiUrl, setUrl] = useState("https://api.github.com/users/daviddkkim/events")
   const [apiData, setAPIData] = useState<Row[]>([])
 
-  const nodeTypes = useMemo(() => ({ customNode: CustomNode }), []);
+  const nodeTypes = useMemo(() => ({ customNode: CustomNode, codeNode: CodeNode }), []);
 
   const initialNodes: Node[] = useMemo(() => {
     return [
       { id: '1', data: <ReadTable data={apiData.slice(0,5)} selected={selected === "read_table" ? true : false} onClick={() => { setSelected("read_table") }} />, position: { x: 5, y: 5 }, type: 'customNode' },
       { id: '2', data: { label: 'Node 2' }, position: { x: 400, y: 400 }, type: 'output' },
+      { id: '3', data: { }, position: { x: 400, y: 700 },  type: 'codeNode' },
+
     ];
   }, [apiData, selected])
 
@@ -84,7 +87,6 @@ export default function Home() {
     [setEdges]
   );
 
-  console.log(apiData)
   return (
     <Main>
 
@@ -102,7 +104,7 @@ export default function Home() {
           proOptions={proOptions}
         />
       </div>
-      <SidePanel>
+{/*       <SidePanel>
 
         <h2>{selected} </h2>
 
@@ -127,7 +129,7 @@ export default function Home() {
           }} />
           <Button type={"submit"}> Run </Button>
         </form>
-      </SidePanel>
+      </SidePanel> */}
 
 
     </Main >
