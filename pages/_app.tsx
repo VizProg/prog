@@ -3,6 +3,7 @@ import { ThemeProvider, useTheme } from "next-themes";
 import { globalCss, darkTheme } from '@/stitches.config';
 import { ReactElement, ReactNode, useEffect, useState } from "react";
 import { NextPage } from "next";
+import { Provider} from "jotai";
 
 
 const globalStyles = globalCss({
@@ -87,6 +88,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page);
 
   return (
+    <Provider>
     <ThemeProvider
       disableTransitionOnChange
       attribute="class"
@@ -101,5 +103,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         </div>
       )}
     </ThemeProvider>
+    </Provider>
   )
 }

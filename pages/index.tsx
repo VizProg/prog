@@ -15,6 +15,9 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { CustomNode } from '@/components/customNode'
 import { CodeNode } from '@/components/CodeNode'
+import { atom, useAtom, useAtomValue } from "jotai";
+
+
 
 
 const Main = styled("main", {
@@ -42,25 +45,28 @@ const CodeBlock = styled("pre", {
 const proOptions = { hideAttribution: true };
 
 
+export const CodeResultAtom = atom<{
+  id: string,
+  result: string
+}[]>([]);
+
+
 export default function Home() {
-
-
-
-
 
   const [selected, setSelected] = useState("")
   const [apiData, setAPIData] = useState<Row[]>([])
 
   const nodeTypes = useMemo(() => ({ customNode: CustomNode, codeNode: CodeNode }), []);
-
+  const codeResultAtom = useAtomValue(CodeResultAtom)
+  console.log(codeResultAtom)
   const initialNodes: Node[] = useMemo(() => {
     return [
-      { id: '1', data: <ReadTable data={apiData.slice(0, 5)} selected={selected === "read_table" ? true : false} onClick={() => { setSelected("read_table") }} />, position: { x: 5, y: 5 }, type: 'customNode' },
-      { id: '2', data: { label: 'Node 2' }, position: { x: 400, y: 400 }, type: 'output' },
-      { id: '3', data: { code: `fetch("https://api.github.com/users/daviddkkim/events").then((res) => res.json());` }, position: { x: 400, y: 700 }, type: 'codeNode' },
+      { id: '1', data: { code: `return fetch("https://api.github.com/users/daviddkkim/events")`, id: '1' }, position: { x: 0, y: 0 }, type: 'codeNode' },
+
+      { id: '2', data: <ReadTable data={codeResultAtom[0] ? JSON.parse(codeResultAtom[0].result).slice(0, 5) as Row[] : []} selected={selected === "read_table" ? true : false} onClick={() => { setSelected("read_table") }} />, position: { x: 500, y: 0 }, type: 'customNode' },
 
     ];
-  }, [apiData, selected])
+  }, [selected, codeResultAtom])
 
   const initialEdges: Edge[] = [{ id: 'e1-2', source: '1', target: '2' }];
   const [nodes, setNodes] = useState<Node[]>(initialNodes);

@@ -5,6 +5,8 @@ import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { styled } from '@/stitches.config';
 import { EditorView } from "@codemirror/view";
+import { atom, useAtom, useSetAtom } from 'jotai';
+import { CodeResultAtom } from '@/pages';
 
 const CodeContainer = styled('div', {
   display: 'flex',
@@ -17,6 +19,8 @@ const CodeContainer = styled('div', {
 const OutputContainer = styled("pre", {
   backgroundColor: '$mauve3',
   minHeight: '48px',
+  maxHeight: '120px',
+  overflow: 'auto',
   padding: ' $2',
   fontSize: '$2',
   width: '100%',
@@ -35,14 +39,18 @@ const extensions = [javascript({
 
 export function CodeNode({ data }: {
   data: {
+    id: string,
     code: string
   }
 }) {
 
   const [code, setCode] = useState(data.code);
+
+  const [codeResultAtom, setCodeResultAtom] = useAtom(CodeResultAtom)
+
   const f = useMemo(() => {
     try {
-      return new Function('code', `return ${code};`);;
+      return new Function('code', `${code};`);;
     } catch (e) {
       return [e];
     }
@@ -57,13 +65,12 @@ export function CodeNode({ data }: {
 
   return (
     <>
-      <Handle type="target" position={Position.Top} />
-      <CodeContainer>
+      <Handle type="target" position={Position.Left} />
+      <CodeContainer >
         <CodeMirror
           value={code}
           height="200px"
-          minWidth='320px'
-          maxWidth='320px'
+          width="320px"
           theme={'dark'}
           extensions={[javascript({ jsx: false, typescript: true }), EditorView.lineWrapping]}
           onChange={onChange}
@@ -74,16 +81,18 @@ export function CodeNode({ data }: {
 
             const outputEl = document.getElementById("output");
             if (outputEl) { outputEl.innerHTML = JSON.stringify(result, null, 2) }
+            setCodeResultAtom(
+              [...codeResultAtom, { id: data.id, result: JSON.stringify(result, null, 2) }]
+            )
           } catch (e) {
             const outputEl = document.getElementById("output");
             console.error(e)
             if (outputEl) { outputEl.innerHTML = "Unable to run the code. Make sure your code is correct." }
-
           }
         }}> Run</button>
         <OutputContainer id={"output"}></OutputContainer>
       </CodeContainer>
-      <Handle type="source" position={Position.Bottom} id="a" />
+      <Handle type="source" position={Position.Right} id="a" />
     </>
   );
 }
