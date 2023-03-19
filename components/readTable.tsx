@@ -1,5 +1,6 @@
 import React from "react"
 import { styled } from "@/stitches.config"
+import { Row } from "@/types"
 
 const StyledHeader = styled("th", {
   width: '100%',
@@ -12,13 +13,14 @@ const StyledCell = styled("td", {
   textAlign: 'start',
   padding: '$2 $3',
   minWidth: '100px',
-
+  maxWidth:'400px',
+  overflow: 'auto',
 })
 
 const StyledTable = styled("table", {
   border: '1px solid $fgBorder',
   borderRadius: '$2',
-  borderCollapse: 'collapse'
+  borderCollapse: 'collapse',
 })
 
 const StyledRow = styled("tr", {
@@ -99,7 +101,6 @@ export const ReadTable = ({
   }
 
   const headerValues = getHeaders(data[0]);
-  console.log(headerValues)
   return (
 
     <div style={{ position: 'relative' }}>
@@ -116,7 +117,12 @@ export const ReadTable = ({
           </StyledRow>
           {data.map((row, i) => {
             const cells = Object.keys(row).map((key, i) => {
-              if (typeof row[key] === "object") return;
+              if (typeof row[key] === "object") {
+                return <StyledCell key={i}>{JSON.stringify(row[key])}</StyledCell>
+              }
+              if (typeof row[key] === "boolean") {
+                return <StyledCell key={i}>{row[key]? "true" : false}</StyledCell>
+              }
               const value = row[key] as string;
               return <StyledCell key={i}>{value}</StyledCell>
             })

@@ -22,6 +22,7 @@ const globalStyles = globalCss({
 
   "::-webkit-scrollbar": {
     width: '$2',
+    height: '$2'
   },
 
   /* Track */
@@ -48,7 +49,7 @@ const globalStyles = globalCss({
 
   svg: { display: "block" },
 
-  "pre, code": { margin: 0, fontFamily: "$mono" },
+  "pre, code": { margin: 0, fontFamily: "$mono", fontSize:'$2' },
 
   "::selection": {
     backgroundColor: "$mint11",
@@ -58,11 +59,11 @@ const globalStyles = globalCss({
     boxSizing: "border-box",
   },
   h1: {
-    fontSize: "$6",
+    fontSize: "$5",
     fontWeight: 500,
   },
   "h2, h3": {
-    fontSize: "$5",
+    fontSize: "$4",
     fontWeight: 500,
   },
 });
