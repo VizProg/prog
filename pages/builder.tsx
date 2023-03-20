@@ -61,6 +61,19 @@ const OutputContainer = styled("pre", {
     wordWrap: 'break-word',
 })
 
+const Box = styled('div', {
+    display: 'flex',
+    gap: '$4'
+})
+
+
+const ComponentCard = styled('div', {
+    display: 'flex',
+    border: '1px solid $fgBorder',
+    height: '96px',
+    width: '96px'
+})
+
 
 
 
@@ -89,11 +102,13 @@ export default function Home() {
         }
     }, [code]);
 
-
+    const onDrop = (layout: GridLayout.Layout[], layoutItem: any, _event: Event) => {
+        alert(`Dropped element props:\n${JSON.stringify(layoutItem, ['x', 'y', 'w', 'h'], 2)}`);
+    };
     return (
         <Main>
 
-            <div style={{ width: '100%', height: "100%" }}>
+            <div style={{ width: '100%', height: "100%" }} >
                 <StyledGridLayout
                     className="layout"
                     layout={layout}
@@ -101,7 +116,8 @@ export default function Home() {
                     rowHeight={30}
                     width={1280}
                     verticalCompact={false}
-
+                    isDroppable={true}
+                    onDrop={onDrop}
                 >
                     <GridItem key="a" onClick={() => { setSelected("a") }}>
 
@@ -113,53 +129,79 @@ export default function Home() {
                     <GridItem key="c" onClick={() => { setSelected("c") }}>c</GridItem>
                 </StyledGridLayout>
             </div>
-            {selected &&
-                <SidePanel>
-                    <h2>{selected} </h2>
 
-                    <div>
-                        <label htmlFor={"data"}>Data</label>
-                        <CodeBlock id={"data"} draggable={true} onDrag={(e) => {
-                            console.log(e)
-                            console.log("here")
+            <SidePanel>
+                {!selected &&
+                    <>
+                        <h2>Components</h2>
+
+                        <Box css={{
+                            width: '100%',
+                            flexWrap: 'wrap',
                         }}>
-                            {JSON.stringify(apiData, null, 2)}
-                        </CodeBlock>
-                    </div>
+                            <ComponentCard draggable className='droppable-element' unselectable="on" onDragStart={e => e.dataTransfer.setData("text/plain", "")}
+                            >
+                                Table
+                            </ComponentCard>
+                            <ComponentCard draggable>
+                                Text
+                            </ComponentCard>
+                            <ComponentCard draggable>
+                                Input
+                            </ComponentCard>
+                            <ComponentCard draggable>
+                                Button
+                            </ComponentCard>
+                        </Box>
+                    </>}
+                {selected &&
+                    <>
+                        <h2 onClick={() => { setSelected("") }}>Components / {selected} </h2>
+
+                        <div>
+                            <label htmlFor={"data"}>Data</label>
+                            <CodeBlock id={"data"} draggable={true} onDrag={(e) => {
+                                console.log(e)
+                                console.log("here")
+                            }}>
+                                {JSON.stringify(apiData, null, 2)}
+                            </CodeBlock>
+                        </div>
 
 
-                    <CodeContainer >
-                        <CodeMirror
-                            value={code}
-                            height="200px"
-                            width="386px"
-                            theme={'dark'}
-                            extensions={[javascript({ jsx: false, typescript: true }), EditorView.lineWrapping]}
-                            onChange={onChange}
-                        />
-                        <button onClick={async () => {
-                            try {
-                                const result = typeof f === "function" ? await f({ code }) : null;
+                        <CodeContainer >
+                            <CodeMirror
+                                value={code}
+                                height="200px"
+                                width="386px"
+                                theme={'dark'}
+                                extensions={[javascript({ jsx: false, typescript: true }), EditorView.lineWrapping]}
+                                onChange={onChange}
+                            />
+                            <button onClick={async () => {
+                                try {
+                                    const result = typeof f === "function" ? await f({ code }) : null;
 
-                                const outputEl = document.getElementById("output");
-                                if (outputEl) { outputEl.innerHTML = JSON.stringify(result, null, 2) }
-                                setOutput(result)
-                            } catch (e) {
-                                const outputEl = document.getElementById("output");
-                                console.error(e)
-                                if (outputEl) { outputEl.innerHTML = "Unable to run the code. Make sure your code is correct." }
-                            }
-                        }}> Run</button>
-                        <OutputContainer id={"output"}></OutputContainer>
-                    </CodeContainer>
-
-                    {/*  <input type="text" placeholder='https://api.github.com/users/${githubUser}/events' value={apiUrl} onChange={(event) => {
+                                    const outputEl = document.getElementById("output");
+                                    if (outputEl) { outputEl.innerHTML = JSON.stringify(result, null, 2) }
+                                    setOutput(result)
+                                } catch (e) {
+                                    const outputEl = document.getElementById("output");
+                                    console.error(e)
+                                    if (outputEl) { outputEl.innerHTML = "Unable to run the code. Make sure your code is correct." }
+                                }
+                            }}> Run</button>
+                            <OutputContainer id={"output"}></OutputContainer>
+                        </CodeContainer>
+                    </>
+                }
+                {/*  <input type="text" placeholder='https://api.github.com/users/${githubUser}/events' value={apiUrl} onChange={(event) => {
                             setAPIUrl(event.currentTarget.value)
                         }} /> */}
 
 
-                </SidePanel>
-            }
+            </SidePanel>
+
         </Main >
     )
 }
