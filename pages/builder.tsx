@@ -84,12 +84,14 @@ export default function Home() {
     const [apiUrl, setAPIUrl] = useState("https://api.github.com/users/daviddkkim/events")
     const [output, setOutput] = useState<Row[]>()
     const nodeTypes = useMemo(() => ({ customNode: CustomNode, codeNode: CodeNode }), []);
+    const [draggedItem, setDraggedItem] = useState("")
     const [code, setCode] = useState("return fetch('https://api.github.com/users/daviddkkim/events').then(res => res.json())")
     const layout = [
         { i: "a", x: 0, y: 0, w: 0.01, h: 4, minW: 1, maxW: 12 },
         { i: "b", x: 1, y: 0, w: 3, h: 5, minW: 1, maxW: 12 },
         { i: "c", x: 4, y: 0, w: 1, h: 2, minW: 1, maxW: 12 }
     ];
+
     const onChange = useCallback((value: string, viewUpdate: any) => {
         setCode(value)
     }, []);
@@ -103,8 +105,9 @@ export default function Home() {
     }, [code]);
 
     const onDrop = (layout: GridLayout.Layout[], layoutItem: any, _event: Event) => {
-        alert(`Dropped element props:\n${JSON.stringify(layoutItem, ['x', 'y', 'w', 'h'], 2)}`);
+        alert(`Dropped element props:\n${JSON.stringify(draggedItem, ['x', 'y', 'w', 'h'], 2)}`);
     };
+
     return (
         <Main>
 
@@ -127,6 +130,9 @@ export default function Home() {
                     </GridItem>
 
                     <GridItem key="c" onClick={() => { setSelected("c") }}>c</GridItem>
+                    {
+
+                    }
                 </StyledGridLayout>
             </div>
 
@@ -139,17 +145,32 @@ export default function Home() {
                             width: '100%',
                             flexWrap: 'wrap',
                         }}>
-                            <ComponentCard draggable className='droppable-element' unselectable="on" onDragStart={e => e.dataTransfer.setData("text/plain", "")}
+                            <ComponentCard draggable className='droppable-element' unselectable="on" onDragStart={(e) => {
+                                e.dataTransfer.setData("text/plain", "")
+                                setDraggedItem("table")
+                            }}
                             >
                                 Table
                             </ComponentCard>
-                            <ComponentCard draggable>
+                            <ComponentCard draggable className='droppable-element' unselectable="on" onDragStart={(e) => {
+                                e.dataTransfer.setData("text/plain", "")
+                                setDraggedItem("text")
+                            }}
+                            >
                                 Text
                             </ComponentCard>
-                            <ComponentCard draggable>
+                            <ComponentCard draggable className='droppable-element' unselectable="on" onDragStart={(e) => {
+                                e.dataTransfer.setData("text/plain", "")
+                                setDraggedItem("input")
+                            }}
+                            >
                                 Input
                             </ComponentCard>
-                            <ComponentCard draggable>
+                            <ComponentCard draggable className='droppable-element' unselectable="on" onDragStart={(e) => {
+                                e.dataTransfer.setData("text/plain", "")
+                                setDraggedItem("button")
+                            }}
+                            >
                                 Button
                             </ComponentCard>
                         </Box>
