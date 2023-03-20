@@ -1,10 +1,9 @@
 import { styled } from '@/stitches.config'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { ReadTable } from '@/components/readTable'
 import type { Row } from "@/types"
 import { CustomNode } from '@/components/customNode'
 import { CodeNode } from '@/components/CodeNode'
-import { atom, useAtom, useAtomValue } from "jotai";
 import GridLayout from "react-grid-layout";
 import { SidePanel } from '@/components/Sidepanel'
 import CodeMirror from '@uiw/react-codemirror';
