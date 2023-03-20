@@ -13,7 +13,7 @@ const StyledCell = styled("td", {
   textAlign: 'start',
   padding: '$2 $3',
   minWidth: '100px',
-  maxWidth:'400px',
+  maxWidth: '400px',
   overflow: 'auto',
 })
 
@@ -54,24 +54,25 @@ const Box = styled("div", {
   height: 'calc(100% - 36px)'
 })
 
-export const ReadTable = ({
-  data = [{
-    name: "Alfreds Futterkiste",
-    location: "Germany",
-    header3: ""
-  }, {
-    name: "david kim",
-    location: "korea",
-    header3: ""
-  }],
-  selected = false,
-  onClick }: {
-    data: Row[],
-    onClick: () => void,
-    selected: boolean
-  }) => {
-
-  console.log(data)
+export const ReadTable = React.forwardRef<HTMLDivElement, {
+  data: Row[], selected: boolean, onClick: () => void,
+  key?: string,
+  onMouseDown?: React.MouseEventHandler<HTMLDivElement>,
+  onMouseUp?: React.MouseEventHandler<HTMLDivElement>,
+  onTouchEnd?: React.TouchEventHandler<HTMLDivElement>,
+  className?: string,
+  children?: React.ReactNode
+}>(({
+  data,
+  selected,
+  onClick,
+  key,
+  onMouseDown,
+  onMouseUp,
+  onTouchEnd,
+  className,
+  children
+}, ref) => {
 
   if (data.length < 1 || !data) {
 
@@ -79,13 +80,16 @@ export const ReadTable = ({
       <DivTable onClick={() => { onClick() }}
         css={{
           border: selected ? "2px solid $orange10" : ""
-        }}>
+        }}
+        key={key}
+        className={className} ref={ref} onMouseDown={onMouseDown} onMouseUp={onMouseUp} onTouchEnd={onTouchEnd}>
         <DivTableHeader>
 
         </DivTableHeader>
         <Box>
           No rows were found
         </Box>
+        {children}
       </DivTable>
 
     )
@@ -103,7 +107,7 @@ export const ReadTable = ({
   const headerValues = getHeaders(data[0]);
   return (
 
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative' }} ref={ref}>
       <StyledTable onClick={() => { onClick() }}
         css={{
           border: selected ? "2px solid $orange10" : ""
@@ -121,7 +125,7 @@ export const ReadTable = ({
                 return <StyledCell key={i}>{JSON.stringify(row[key])}</StyledCell>
               }
               if (typeof row[key] === "boolean") {
-                return <StyledCell key={i}>{row[key]? "true" : false}</StyledCell>
+                return <StyledCell key={i}>{row[key] ? "true" : false}</StyledCell>
               }
               const value = row[key] as string;
               return <StyledCell key={i}>{value}</StyledCell>
@@ -132,8 +136,10 @@ export const ReadTable = ({
           })}
         </tbody>
       </StyledTable>
+      {children}
+
     </div>
   )
+})
 
-
-}
+ReadTable.displayName = "ReadTable";

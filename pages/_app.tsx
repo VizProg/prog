@@ -4,7 +4,8 @@ import { globalCss, darkTheme } from '@/stitches.config';
 import { ReactElement, ReactNode, useEffect, useState } from "react";
 import { NextPage } from "next";
 import { Provider} from "jotai";
-
+import "/node_modules/react-grid-layout/css/styles.css";
+import "/node_modules/react-resizable/css/styles.css";
 
 const globalStyles = globalCss({
   html: {

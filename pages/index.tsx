@@ -61,7 +61,7 @@ export default function Home() {
   console.log(codeResultAtom)
   const initialNodes: Node[] = useMemo(() => {
     return [
-      { id: '1', data: { code: `return fetch("https://api.github.com/users/daviddkkim/events")`, id: '1' }, position: { x: 0, y: 0 }, type: 'codeNode' },
+      { id: '1', data: { code: `return fetch("https://api.github.com/users/daviddkkim/events").then((res)=>res.json())`, id: '1' }, position: { x: 0, y: 0 }, type: 'codeNode' },
 
       { id: '2', data: <ReadTable data={codeResultAtom[0] ? JSON.parse(codeResultAtom[0].result).slice(0, 5) as Row[] : []} selected={selected === "read_table" ? true : false} onClick={() => { setSelected("read_table") }} />, position: { x: 500, y: 0 }, type: 'customNode' },
 
