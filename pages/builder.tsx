@@ -84,7 +84,7 @@ export default function Home() {
   const [apiUrl, setAPIUrl] = useState("https://api.github.com/users/daviddkkim/events")
   const [output, setOutput] = useState<Row[]>()
   const nodeTypes = useMemo(() => ({ customNode: CustomNode, codeNode: CodeNode }), []);
-  const [draggedItem, setDraggedItem] = useState("")
+  const [draggedItem, setDraggedItem] = useState<"table" | "text" | "button" | "input" | null>(null)
   const [code, setCode] = useState("return fetch('https://api.github.com/users/daviddkkim/events').then(res => res.json())")
   const [gridItems, setGridItems] = useState([
     <GridItem key="a" onClick={() => { setSelected("a") }}>
