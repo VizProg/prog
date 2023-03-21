@@ -84,7 +84,7 @@ export default function Home() {
   const [apiUrl, setAPIUrl] = useState("https://api.github.com/users/daviddkkim/events")
   const [output, setOutput] = useState<Row[]>()
   const nodeTypes = useMemo(() => ({ customNode: CustomNode, codeNode: CodeNode }), []);
-  const [draggedItem, setDraggedItem] = useState("")
+  const [draggedItem, setDraggedItem] = useState<"table" | "text" | "button" | "input" | null>(null)
   const [code, setCode] = useState("return fetch('https://api.github.com/users/daviddkkim/events').then(res => res.json())")
   const [gridItems, setGridItems] = useState([
     <GridItem key="a" onClick={() => { setSelected("a") }}>
@@ -127,16 +127,16 @@ export default function Home() {
   const onDrop = (layout: GridLayout.Layout[], layoutItem: any, _event: Event) => {
     const newLayout = [...layout,
     {
-      "i": draggedItem,
+      "i": draggedItem + layoutItem.x,
       "x": layoutItem.x,
       "y": layoutItem.y,
-      "w": layoutItem.w,
-      "h": layoutItem.h
+      "w": draggedItem === "table" ? 3 : 2,
+      "h": draggedItem === "table" ? 5 : 2
     }];
     setLayout(newLayout)
     if (draggedItem === "table") {
       const newGridItems = [...gridItems,
-      <GridItem key={draggedItem} onClick={() => { setSelected("table") }}>
+      <GridItem key={draggedItem + layoutItem.x} onClick={() => { setSelected("table") }}>
         <ReadTable data={output ? output.slice(0, 5) : []} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
       </GridItem>,]
       setGridItems(newGridItems)
