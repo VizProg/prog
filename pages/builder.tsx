@@ -4,7 +4,7 @@ import { ReadTable } from '@/components/readTable'
 import type { Row } from "@/types"
 import { CustomNode } from '@/components/customNode'
 import { CodeNode } from '@/components/CodeNode'
-import GridLayout from "react-grid-layout";
+import GridLayout, { Layout } from "react-grid-layout";
 import { SidePanel } from '@/components/Sidepanel'
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
@@ -98,15 +98,7 @@ export default function Home() {
 
   ])
 
-  const [layout, setLayout] = useState<{
-    i: string,
-    x: Number,
-    y: Number,
-    w: Number,
-    h: Number,
-    minW?: Number,
-    maxW?: Number
-  }[]>([
+  const [layout, setLayout] = useState<Layout[]>([
     { i: "a", x: 0, y: 0, w: 0.01, h: 4, minW: 1, maxW: 12 },
     { i: "b", x: 1, y: 0, w: 3, h: 5, minW: 1, maxW: 12 },
     { i: "c", x: 4, y: 0, w: 1, h: 2, minW: 1, maxW: 12 }
@@ -138,6 +130,13 @@ export default function Home() {
       const newGridItems = [...gridItems,
       <GridItem key={draggedItem + layoutItem.x} onClick={() => { setSelected("table") }}>
         <ReadTable data={output ? output.slice(0, 5) : []} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
+      </GridItem>,]
+      setGridItems(newGridItems)
+    }
+    if (draggedItem === "text") {
+      const newGridItems = [...gridItems,
+      <GridItem key={draggedItem + layoutItem.x} onClick={() => { setSelected("text") }}>
+        Text
       </GridItem>,]
       setGridItems(newGridItems)
     }
