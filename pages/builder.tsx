@@ -101,10 +101,11 @@ export default function Home() {
   const [code, setCode] = useState("return fetch('https://api.github.com/users/daviddkkim/events').then(res => res.json())")
   const [dataResult, setDataResult] = useState<Row[] | null>(null)
   const [dataAtom, setDataAtom] = useAtom(DataAtom)
+  const [nestedSelected, setNestedSelected] = useState("")
 
   const [gridItems, setGridItems] = useState([
     <GridItem key="b" onClick={() => { setSelected("table") }} type={"table"}>
-      <ReadTable data={dataResult? dataResult.slice(0, 5) : [{hi:'try saving new data'}]} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
+      <ReadTable data={dataResult ? dataResult.slice(0, 5) : [{ hi: 'try saving new data' }]} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
     </GridItem>,
     <GridItem key="c" onClick={() => { setSelected("text") }} type={"text"}>c</GridItem>,
   ])
@@ -180,8 +181,8 @@ export default function Home() {
             const returnedVal = typeof f === "function" ? await f({ code }) : null;
             setDataResult(returnedVal);
 
-          /*   const outputEl = document.getElementById("output");
-            if (outputEl) { outputEl.innerHTML = JSON.stringify(returnedVal, null, 2) } */
+            /*   const outputEl = document.getElementById("output");
+              if (outputEl) { outputEl.innerHTML = JSON.stringify(returnedVal, null, 2) } */
           } catch (e) {
             const outputEl = document.getElementById("output");
             console.error(e)
@@ -189,7 +190,7 @@ export default function Home() {
           }
         }}> Run</button>
         <OutputContainer id={"output"}>
-        {JSON.stringify(dataResult,null, 2)}
+          {JSON.stringify(dataResult, null, 2)}
         </OutputContainer>
       </CodeContainer>
       <Button
@@ -218,7 +219,7 @@ export default function Home() {
     </Box>
   ), [code, onChange, dataResult, f, setDataAtom, dataAtom]);
 
-//set nested and table are inside of a state thats why it's not updating"
+  //set nested and table are inside of a state thats why it's not updating"
 
   return (
     <Main>
@@ -231,11 +232,29 @@ export default function Home() {
         </Button>
       </Header>
       <Box>
-        <SidePanel expanded={leftExpanded} side={"left"} nestedOpen={nestedOpen} nested={newData}>
+        <SidePanel expanded={leftExpanded} side={"left"} nestedOpen={nestedOpen} nested={<>
+          {nestedSelected === "newdata" &&
+            newData}
+          {nestedSelected.length > 0 && nestedSelected !== "newdata" && (
+            <Box css={{
+              flexDirection: 'column',
+              gap: '$4'
+            }}>
+              <CodeBlock>
+                {dataAtom[0].code}
+              </CodeBlock>
+              <OutputContainer>
+                {JSON.stringify(dataAtom[0].result, null, 2)}
+              </OutputContainer>
+            </Box>
+          )
+          }
+        </>}>
           Data
           <Button variant={"outline"} stretch onClick={() => {
             setNestedOpen(true);
-//            setNestedView(newData)
+            setNestedSelected("newdata")
+            //            setNestedView(newData)
           }}>
             <FilePlusIcon /> Add data
           </Button>
@@ -247,19 +266,7 @@ export default function Home() {
               {dataAtom.map((data) => {
                 return (
                   <Button key={data.id} variant={"ghost"} stretch onClick={() => {
-                   /*  setNestedView(
-                      <Box css={{
-                        flexDirection:'column',
-                        gap: '$4'
-                      }}>
-                        <CodeBlock>
-                          {data.code}
-                        </CodeBlock>
-                        <OutputContainer>
-                          {JSON.stringify(data.result, null, 2)}
-                        </OutputContainer>
-                      </Box>
-                    ) */
+                    setNestedSelected(data.id)
                   }}> {data.name}</Button>
                 )
               })}
