@@ -9,6 +9,9 @@ const StyledGridItem = styled("div", {
   borderRadius: '6px',
   background: '$mauve3',
   border: '1px solid $fgBorder',
+  "& > .react-resizable-handle:after": {
+  borderColor: '$fgBorder !important'
+  },
   variants: {
     type: {
       "input": {
@@ -24,6 +27,8 @@ const StyledGridItem = styled("div", {
         border: '1px solid transparent'
       },
       "table": {
+        background: 'transparent',
+        border: '1px solid transparent'
 
       }
     }
@@ -37,8 +42,10 @@ interface GridItemProps extends React.HTMLProps<HTMLDivElement> {
 export const GridItem = React.forwardRef<HTMLDivElement, GridItemProps>(({ children, type, ...rest }, ref) => {
 
   return (
-    <StyledGridItem {...rest} ref={ref} >
+    <StyledGridItem {...rest} ref={ref} type={type}>
       {children}
     </StyledGridItem>
   )
 })
+
+GridItem.displayName = "GridItem"

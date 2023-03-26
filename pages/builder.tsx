@@ -91,24 +91,60 @@ export const DataAtom = atom<{
   result: Row[]
 }[]>([]);
 
+export const ComponentAtom = atom<{
+  key: string,
+  type: "table" | "text" | "button" | "input",
+  data: Row[] | null,
+}[]>([
+  {
+    key: "b",
+    type: "table",
+    data: null
+  },
+  {
+    key: "c",
+    type: "text",
+    data: null
+  }
+]);
+
 export default function Home() {
 
-  const [selected, setSelected] = useState("")
+  const [selected, setSelected] = useState<{
+    key: string,
+    type: "table" | "text" | "button" | "input",
+    data: Row[] | null,
+  } | null>()
   const [rightExpanded, setRightExpanded] = useState(true);
   const [leftExpanded, setLeftExpanded] = useState(true);
   const [nestedOpen, setNestedOpen] = useState(false);
+  const [dataName, setDataName] = useState("");
   const [draggedItem, setDraggedItem] = useState<"table" | "text" | "button" | "input" | null>(null)
   const [code, setCode] = useState("return fetch('https://api.github.com/users/daviddkkim/events').then(res => res.json())")
   const [dataResult, setDataResult] = useState<Row[] | null>(null)
   const [dataAtom, setDataAtom] = useAtom(DataAtom)
+  const [componentAtom, setComponentAtom] = useAtom(ComponentAtom)
   const [nestedSelected, setNestedSelected] = useState("")
 
-  const [gridItems, setGridItems] = useState([
-    <GridItem key="b" onClick={() => { setSelected("table") }} type={"table"}>
-      <ReadTable data={dataResult ? dataResult.slice(0, 5) : [{ hi: 'try saving new data' }]} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
-    </GridItem>,
-    <GridItem key="c" onClick={() => { setSelected("text") }} type={"text"}>c</GridItem>,
-  ])
+  /*   const [gridItems, setGridItems] = useState([
+      <GridItem key="b" onClick={() => { setSelected("table") }} type={"table"}>
+        <ReadTable data={dataResult ? dataResult.slice(0, 5) : [{ hi: 'try saving new data' }]} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
+      </GridItem>,
+      <GridItem key="c" onClick={() => { setSelected("text") }} type={"text"}>c</GridItem>,
+    ]) */
+  const gridItems = componentAtom.map((item) => {
+    if (item.type === "table") {
+      return <GridItem key={item.key} onClick={() => { setSelected(item) }} type={"table"}>
+        <ReadTable data={item.data ? item.data.slice(0, 5) : [{ hi: 'try saving new data' }]} selected={selected && selected.key === item.key ? true : false} onClick={() => { setSelected(item) }} />
+      </GridItem>
+    } else if (item.type === "text") {
+      return <GridItem key={item.key} onClick={() => { setSelected(item) }} type={"text"}>c</GridItem>
+    } else if (item.type === "button") {
+      return <GridItem key={item.key} onClick={() => { setSelected(item) }} type={"button"}>c</GridItem>
+    } else if (item.type === "input") {
+      return <GridItem key={item.key} onClick={() => { setSelected(item) }} type={"input"}>c</GridItem>
+    }
+  })
 
   const [layout, setLayout] = useState<Layout[]>([
     { i: "b", x: 1, y: 0, w: 4, h: 5, minW: 1, maxW: 12 },
@@ -140,18 +176,28 @@ export default function Home() {
     }];
     setLayout(newLayout)
     if (draggedItem === "table") {
-      const newGridItems = [...gridItems,
-      <GridItem key={draggedItem + layoutItem.x} onClick={() => { setSelected("table") }} type={"table"}>
-        <ReadTable data={dataResult ? dataResult.slice(0, 5) : []} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
-      </GridItem>,]
-      setGridItems(newGridItems)
+      /*  const newGridItems = [...gridItems,
+       <GridItem key={draggedItem + layoutItem.x} onClick={() => { setSelected("table") }} type={"table"}>
+         <ReadTable data={dataResult ? dataResult.slice(0, 5) : []} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
+       </GridItem>,]
+       setGridItems(newGridItems) */
+      setComponentAtom([...componentAtom, {
+        key: draggedItem + layoutItem.x,
+        type: "table",
+        data: null
+      }])
     }
     if (draggedItem === "text") {
-      const newGridItems = [...gridItems,
-      <GridItem key={draggedItem + layoutItem.x} onClick={() => { setSelected("text") }} type={"text"}>
-        Text
-      </GridItem>]
-      setGridItems(newGridItems)
+      /*    const newGridItems = [...gridItems,
+         <GridItem key={draggedItem + layoutItem.x} onClick={() => { setSelected("text") }} type={"text"}>
+           Text
+         </GridItem>]
+         setGridItems(newGridItems) */
+      setComponentAtom([...componentAtom, {
+        key: draggedItem + layoutItem.x,
+        type: "text",
+        data: null
+      }])
     }
   };
 
@@ -164,7 +210,9 @@ export default function Home() {
       <>
         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           Data name
-          <input type="text" placeholder='Name this data' />
+          <input type="text" placeholder='Name this data' value={dataName} onChange={(e) => {
+            setDataName(e.currentTarget.value)
+          }} />
         </label>
       </>
       <CodeContainer >
@@ -195,17 +243,18 @@ export default function Home() {
       </CodeContainer>
       <Button
         variant={"primary"}
-        disabled={dataResult ? false : true}
+        disabled={dataResult ? dataName? false: true : true}
         onClick={() => {
           setDataAtom([
             ...dataAtom,
             {
               id: "name",
-              name: 'data1',
+              name: dataName,
               code: code,
               result: dataResult ? dataResult : []
             }
           ])
+          setDataName("")
         }}>
         Save
       </Button>
@@ -217,9 +266,9 @@ export default function Home() {
           top: 8
         }} onClick={() => { setNestedOpen(false) }}> <Cross1Icon /> </Button>
     </Box>
-  ), [code, onChange, dataResult, f, setDataAtom, dataAtom]);
+  ), [code, onChange, dataResult, f, setDataAtom, dataAtom, dataName]);
 
-  //set nested and table are inside of a state thats why it's not updating"
+  //set nested and table are inside of a state thats why it's not updating" Right now its hacked. Need more dyanmic way to click data and get the right results
 
   return (
     <Main>
@@ -278,7 +327,7 @@ export default function Home() {
             layout={layout}
             cols={12}
             rowHeight={30}
-            width={1000}
+            width={leftExpanded ? rightExpanded ? 600 : 800 : 1000}
             verticalCompact={false}
             isDroppable={true}
             onDrop={onDrop}
@@ -331,20 +380,35 @@ export default function Home() {
             </>}
           {selected &&
             <>
-              <div onClick={() => { setSelected("") }}>Components / {selected} </div>
+              <div onClick={() => { setSelected(null) }}>Components / {selected.type} </div>
 
               <div>
                 <label htmlFor={"data"}>Data</label>
-                <CodeBlock id={"data"} draggable={true} onDrag={(e) => {
-                  console.log(e)
-                  console.log("here")
-                }}>
-                  {JSON.stringify(dataResult, null, 2)}
-                </CodeBlock>
+
+                <select onChange={(e) => {
+                  if(e.currentTarget.value === "") return;
+                  const newAtoms = componentAtom.map((atom) => {
+                    if (atom.key === selected.key) {
+                      return {
+                        ...atom,
+                        data: dataAtom[0].result ?? null
+                      }
+                    }
+                    return { ...atom }
+                  });
+
+                  
+                  setComponentAtom(newAtoms);
+                }}
+                defaultValue="">
+                  <option value={""}>none</option>
+                  {dataAtom.map((data) => {
+                    return (
+                      <option key={data.id} value={data.id}>{data.name}</option>
+                    )
+                  })}
+                </select>
               </div>
-
-
-
             </>
           }
 

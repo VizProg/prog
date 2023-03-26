@@ -5,16 +5,19 @@ import { Row } from "@/types"
 const StyledHeader = styled("th", {
   width: '100%',
   textAlign: 'start',
-  padding: '$2 $3',
+  padding: '$1 $2',
+  fontsize:' $1'
 })
 
 const StyledCell = styled("td", {
   width: '100%',
   textAlign: 'start',
-  padding: '$2 $3',
-  minWidth: '100px',
-  maxWidth: '400px',
+  padding: '$1 $2',
+  minWidth: '80px',
+  maxWidth: '200px',
   overflow: 'auto',
+  fontsize:' $1'
+
 })
 
 const StyledTable = styled("table", {
