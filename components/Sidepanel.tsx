@@ -5,21 +5,24 @@ const Container = styled("div", {
   display: 'flex',
   flexDirection: 'column',
   gap: '$3',
-  width: '420px',
   padding: '$3',
-  borderLeft: '1px solid $fgBorder',
-  backgroundColor: '$mauve2',
-  minHeight: 'calc(100vh - 48px)',
-  flex: "0 1 0",
+  backgroundColor: '$bgSecondary',
+  marginTop: "$3",
+  minHeight: 'calc(100vh - 64px)',
+  borderTop: '1px solid $fgBorder',
+
   variants: {
     side: {
       "left": {
         borderRight: '1px solid $fgBorder',
+        width: '200px',
+        borderRadius: '0 8px 0 0'
 
       },
       "right": {
         borderLeft: '1px solid $fgBorder',
-
+        width: '420px',
+        borderRadius: '8px 0 0 0'
       }
     }
   }

@@ -9,7 +9,7 @@ import { SidePanel } from '@/components/Sidepanel'
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { EditorView } from "@codemirror/view";
-import { PinRightIcon, PinLeftIcon } from '@radix-ui/react-icons'
+import { PinRightIcon, PinLeftIcon, FilePlusIcon } from '@radix-ui/react-icons'
 
 
 const Main = styled("main", {
@@ -25,6 +25,9 @@ const StyledGridLayout = styled(GridLayout, {
 })
 
 const Button = styled('button', {
+  display: 'flex',
+  gap: '$2',
+  alignItems: 'center',
   border: 'none',
   background: 'transparent',
   color: '$textPrimary',
@@ -32,6 +35,17 @@ const Button = styled('button', {
   borderRadius: '6px',
   "&:hover": {
     background: '$fg',
+  },
+  variants: {
+    variant: {
+      "ghost": {
+
+      },
+      "outline": {
+        border: '1px solid $separator',
+        background: "linear-gradient(var(--mauve1), var(--mauve2))"
+      }
+    }
   }
 
 })
@@ -118,8 +132,8 @@ export default function Home() {
   const [selected, setSelected] = useState("")
   const [apiData, setAPIData] = useState<Row[]>([])
   const [apiUrl, setAPIUrl] = useState("https://api.github.com/users/daviddkkim/events")
-  const [rightExpanded, setRightExpanded] = useState(false);
-  const [leftExpanded, setLeftExpanded] = useState(false);
+  const [rightExpanded, setRightExpanded] = useState(true);
+  const [leftExpanded, setLeftExpanded] = useState(true);
 
   const [output, setOutput] = useState<Row[]>()
   const nodeTypes = useMemo(() => ({ customNode: CustomNode, codeNode: CodeNode }), []);
@@ -186,8 +200,11 @@ export default function Home() {
         </Button>
       </Header>
       <Box>
-        <SidePanel expanded={leftExpanded} style={{ width: '100px' }} side={"left"}>
-          hello
+        <SidePanel expanded={leftExpanded} style={{ width: '200px' }} side={"left"}>
+          Data
+          <Button variant={"outline"}>
+            <FilePlusIcon /> Add data
+          </Button>
         </SidePanel>
         <div style={{ width: '100%', height: "100%", padding: '16px' }} >
           <StyledGridLayout
