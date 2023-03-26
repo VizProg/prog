@@ -10,7 +10,7 @@ import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { EditorView } from "@codemirror/view";
 import { PinRightIcon, PinLeftIcon, FilePlusIcon } from '@radix-ui/react-icons'
-
+import { GridItem } from '@/components/GridItem'
 
 const Main = styled("main", {
   minHeight: "100vh",
@@ -49,28 +49,6 @@ const Button = styled('button', {
   }
 
 })
-
-
-const GridItem = styled("div", {
-  display: 'flex',
-  alignItems: 'center',
-  padding: '$2',
-  borderRadius: '6px',
-  background: '$mauve3',
-  border: '1px solid $fgBorder',
-  variants: {
-    variant: {
-      "ghost": {
-        background: 'transparent',
-        border: '1px solid transparent'
-      },
-      "default": {
-
-      }
-    }
-  }
-})
-
 
 const CodeBlock = styled("pre", {
   backgroundColor: '$mauve2',
@@ -113,7 +91,10 @@ const ComponentCard = styled('div', {
   display: 'flex',
   border: '1px solid $fgBorder',
   height: '96px',
-  width: '96px'
+  width: '96px',
+  borderRadius: '8px',
+  alignItems: 'center',
+  justifyContent: 'center'
 })
 
 const Header = styled('div', {
@@ -140,10 +121,10 @@ export default function Home() {
   const [draggedItem, setDraggedItem] = useState<"table" | "text" | "button" | "input" | null>(null)
   const [code, setCode] = useState("return fetch('https://api.github.com/users/daviddkkim/events').then(res => res.json())")
   const [gridItems, setGridItems] = useState([
-    <GridItem key="b" onClick={() => { setSelected("table") }}>
+    <GridItem key="b" onClick={() => { setSelected("table") }} type={"table"}>
       <ReadTable data={output ? output.slice(0, 5) : []} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
     </GridItem>,
-    <GridItem key="c" onClick={() => { setSelected("text") }}>c</GridItem>,
+    <GridItem key="c" onClick={() => { setSelected("text") }} variant={"ghost"} type={"text"}>c</GridItem>,
   ])
 
   const [layout, setLayout] = useState<Layout[]>([
@@ -175,14 +156,14 @@ export default function Home() {
     setLayout(newLayout)
     if (draggedItem === "table") {
       const newGridItems = [...gridItems,
-      <GridItem key={draggedItem + layoutItem.x} onClick={() => { setSelected("table") }}>
+      <GridItem key={draggedItem + layoutItem.x} onClick={() => { setSelected("table") }} type={"table"}>
         <ReadTable data={output ? output.slice(0, 5) : []} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
       </GridItem>,]
       setGridItems(newGridItems)
     }
     if (draggedItem === "text") {
       const newGridItems = [...gridItems,
-      <GridItem key={draggedItem + layoutItem.x} onClick={() => { setSelected("text") }} variant={"ghost"}>
+      <GridItem key={draggedItem + layoutItem.x} onClick={() => { setSelected("text") }} type={"text"}>
         Text
       </GridItem>]
       setGridItems(newGridItems)
@@ -227,7 +208,7 @@ export default function Home() {
         <SidePanel expanded={rightExpanded} side={"right"}>
           {!selected &&
             <>
-              <h2>Components</h2>
+              <div>Components</div>
 
               <Box css={{
                 width: '100%',
@@ -265,7 +246,7 @@ export default function Home() {
             </>}
           {selected &&
             <>
-              <h2 onClick={() => { setSelected("") }}>Components / {selected} </h2>
+              <div onClick={() => { setSelected("") }}>Components / {selected} </div>
 
               <div>
                 <label htmlFor={"data"}>Data</label>
@@ -278,30 +259,7 @@ export default function Home() {
               </div>
 
 
-              <CodeContainer >
-                <CodeMirror
-                  value={code}
-                  height="200px"
-                  width="386px"
-                  theme={'dark'}
-                  extensions={[javascript({ jsx: false, typescript: true }), EditorView.lineWrapping]}
-                  onChange={onChange}
-                />
-                <button onClick={async () => {
-                  try {
-                    const result = typeof f === "function" ? await f({ code }) : null;
 
-                    const outputEl = document.getElementById("output");
-                    if (outputEl) { outputEl.innerHTML = JSON.stringify(result, null, 2) }
-                    setOutput(result)
-                  } catch (e) {
-                    const outputEl = document.getElementById("output");
-                    console.error(e)
-                    if (outputEl) { outputEl.innerHTML = "Unable to run the code. Make sure your code is correct." }
-                  }
-                }}> Run</button>
-                <OutputContainer id={"output"}></OutputContainer>
-              </CodeContainer>
             </>
           }
           {/*  <input type="text" placeholder='https://api.github.com/users/${githubUser}/events' value={apiUrl} onChange={(event) => {
