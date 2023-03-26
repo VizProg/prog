@@ -19,7 +19,6 @@ import { atom, useAtom, useAtomValue } from "jotai";
 
 
 
-
 const Main = styled("main", {
   minHeight: "100vh",
   minWidth: "100vw",

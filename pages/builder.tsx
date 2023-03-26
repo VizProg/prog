@@ -10,6 +10,7 @@ import { EditorView } from "@codemirror/view";
 import { PinRightIcon, PinLeftIcon, FilePlusIcon, Cross1Icon } from '@radix-ui/react-icons'
 import { GridItem } from '@/components/GridItem'
 import { atom, useAtom, useAtomValue } from "jotai";
+import { Button } from '@/components/Button'
 
 const Main = styled("main", {
   minHeight: "100vh",
@@ -23,53 +24,6 @@ const StyledGridLayout = styled(GridLayout, {
 
 })
 
-const Button = styled('button', {
-  display: 'flex',
-  gap: '$2',
-  alignItems: 'center',
-  border: 'none',
-  background: 'transparent',
-  color: '$textPrimary',
-  padding: '$2',
-  borderRadius: '6px',
-  width: "fit-content",
-  "&:disabled": {
-    opacity: .5,
-  },
-
-  variants: {
-    stretch: {
-      true: {
-        width: '100%'
-      },
-      false: {
-        width: "fit-content"
-      }
-    },
-    variant: {
-      "ghost": {
-        "&:hover:not([disabled])": {
-          background: '$fg',
-        },
-      },
-      "outline": {
-        border: '1px solid $separator',
-        background: "linear-gradient($mauve1,$mauve2)",
-        "&:hover:not([disabled])": {
-          background: '$fg',
-        },
-      },
-      "primary": {
-        background: "linear-gradient($mauve4, $mauve5)",
-        border: '1px solid $separator',
-        "&:hover:not([disabled])": {
-          background: '$mauve5',
-        },
-      }
-    }
-  }
-
-})
 
 const CodeBlock = styled("pre", {
   backgroundColor: '$mauve2',
@@ -146,10 +100,11 @@ export default function Home() {
   const [draggedItem, setDraggedItem] = useState<"table" | "text" | "button" | "input" | null>(null)
   const [code, setCode] = useState("return fetch('https://api.github.com/users/daviddkkim/events').then(res => res.json())")
   const [dataResult, setDataResult] = useState<Row[] | null>(null)
-  
+  const [dataAtom, setDataAtom] = useAtom(DataAtom)
+
   const [gridItems, setGridItems] = useState([
     <GridItem key="b" onClick={() => { setSelected("table") }} type={"table"}>
-      <ReadTable data={dataResult ? dataResult.slice(0, 5) : []} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
+      <ReadTable data={dataResult? dataResult.slice(0, 5) : [{hi:'try saving new data'}]} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
     </GridItem>,
     <GridItem key="c" onClick={() => { setSelected("text") }} type={"text"}>c</GridItem>,
   ])
@@ -159,7 +114,6 @@ export default function Home() {
     { i: "c", x: 4, y: 0, w: 1, h: 2, minW: 1, maxW: 12 }
   ])
 
-  const [dataAtom, setDataAtom] = useAtom(DataAtom)
 
 
   const onChange = useCallback((value: string, viewUpdate: any) => {
@@ -201,69 +155,70 @@ export default function Home() {
   };
 
 
-  const newData = (<Box css={{
-    flexDirection: 'column',
-    gap: ' $4'
-  }}>
-    <>
-      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-        Data name
-        <input type="text" placeholder='Name this data' />
-      </label>
-    </>
-    <CodeContainer >
-      <CodeMirror
-        value={code}
-        height="200px"
-        width="365px"
-        theme={'dark'}
-        extensions={[javascript({ jsx: false, typescript: true }), EditorView.lineWrapping]}
-        onChange={onChange}
-      />
-      <button onClick={async () => {
-        try {
-          const returnedVal = typeof f === "function" ? await f({ code }) : null;
-          setDataResult(returnedVal);
+  const newData = useMemo(() => (
+    <Box css={{
+      flexDirection: 'column',
+      gap: ' $4'
+    }}>
+      <>
+        <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          Data name
+          <input type="text" placeholder='Name this data' />
+        </label>
+      </>
+      <CodeContainer >
+        <CodeMirror
+          value={code}
+          height="200px"
+          width="365px"
+          theme={'dark'}
+          extensions={[javascript({ jsx: false, typescript: true }), EditorView.lineWrapping]}
+          onChange={onChange}
+        />
+        <button onClick={async () => {
+          try {
+            const returnedVal = typeof f === "function" ? await f({ code }) : null;
+            setDataResult(returnedVal);
 
-        /*   const outputEl = document.getElementById("output");
-          if (outputEl) { outputEl.innerHTML = JSON.stringify(returnedVal, null, 2) } */
-        } catch (e) {
-          const outputEl = document.getElementById("output");
-          console.error(e)
-          if (outputEl) { outputEl.innerHTML = "Unable to run the code. Make sure your code is correct." }
-        }
-      }}> Run</button>
-      <OutputContainer id={"output"}>
-      {JSON.stringify(dataResult,null, 2)}
-      </OutputContainer>
-    </CodeContainer>
-    <Button
-      variant={"primary"}
-      disabled={dataResult ? false : true}
-      onClick={() => {
-        setDataAtom([
-          ...dataAtom,
-          {
-            id: "name",
-            name: 'data1',
-            code: code,
-            result: dataResult ? dataResult : []
+          /*   const outputEl = document.getElementById("output");
+            if (outputEl) { outputEl.innerHTML = JSON.stringify(returnedVal, null, 2) } */
+          } catch (e) {
+            const outputEl = document.getElementById("output");
+            console.error(e)
+            if (outputEl) { outputEl.innerHTML = "Unable to run the code. Make sure your code is correct." }
           }
-        ])
-      }}>
-      Save
-    </Button>
-    <Button
-      variant={"ghost"}
-      css={{
-        position: 'absolute',
-        right: 8,
-        top: 8
-      }} onClick={() => { setNestedOpen(false) }}> <Cross1Icon /> </Button>
-  </Box>
-  )
+        }}> Run</button>
+        <OutputContainer id={"output"}>
+        {JSON.stringify(dataResult,null, 2)}
+        </OutputContainer>
+      </CodeContainer>
+      <Button
+        variant={"primary"}
+        disabled={dataResult ? false : true}
+        onClick={() => {
+          setDataAtom([
+            ...dataAtom,
+            {
+              id: "name",
+              name: 'data1',
+              code: code,
+              result: dataResult ? dataResult : []
+            }
+          ])
+        }}>
+        Save
+      </Button>
+      <Button
+        variant={"ghost"}
+        css={{
+          position: 'absolute',
+          right: 8,
+          top: 8
+        }} onClick={() => { setNestedOpen(false) }}> <Cross1Icon /> </Button>
+    </Box>
+  ), [code, onChange, dataResult, f, setDataAtom, dataAtom]);
 
-  const [nestedView, setNestedView] = useState<React.ReactNode | null>(newData)
+//set nested and table are inside of a state thats why it's not updating"
 
   return (
     <Main>
@@ -276,11 +231,11 @@ export default function Home() {
         </Button>
       </Header>
       <Box>
-        <SidePanel expanded={leftExpanded} side={"left"} nestedOpen={nestedOpen} nested={nestedView}>
+        <SidePanel expanded={leftExpanded} side={"left"} nestedOpen={nestedOpen} nested={newData}>
           Data
           <Button variant={"outline"} stretch onClick={() => {
             setNestedOpen(true);
-            setNestedView(newData)
+//            setNestedView(newData)
           }}>
             <FilePlusIcon /> Add data
           </Button>
@@ -292,7 +247,7 @@ export default function Home() {
               {dataAtom.map((data) => {
                 return (
                   <Button key={data.id} variant={"ghost"} stretch onClick={() => {
-                    setNestedView(
+                   /*  setNestedView(
                       <Box css={{
                         flexDirection:'column',
                         gap: '$4'
@@ -304,7 +259,7 @@ export default function Home() {
                           {JSON.stringify(data.result, null, 2)}
                         </OutputContainer>
                       </Box>
-                    )
+                    ) */
                   }}> {data.name}</Button>
                 )
               })}

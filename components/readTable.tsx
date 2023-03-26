@@ -73,7 +73,7 @@ export const ReadTable = React.forwardRef<HTMLDivElement, {
   className,
   children
 }, ref) => {
-
+  console.log(data[0])
   if (data.length < 1 || !data) {
 
     return (
