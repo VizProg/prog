@@ -11,6 +11,7 @@ import { javascript } from '@codemirror/lang-javascript';
 import { EditorView } from "@codemirror/view";
 import { PinRightIcon, PinLeftIcon, FilePlusIcon } from '@radix-ui/react-icons'
 import { GridItem } from '@/components/GridItem'
+import { atom, useAtom, useAtomValue } from "jotai";
 
 const Main = styled("main", {
   minHeight: "100vh",
@@ -33,17 +34,39 @@ const Button = styled('button', {
   color: '$textPrimary',
   padding: '$2',
   borderRadius: '6px',
-  "&:hover": {
-    background: '$fg',
+  width: "fit-content",
+  "&:disabled": {
+    opacity: .5,
   },
+
   variants: {
+    stretch: {
+      true: {
+        width: '100%'
+      },
+      false: {
+        width: "fit-content"
+      }
+    },
     variant: {
       "ghost": {
-
+        "&:hover:not([disabled])": {
+          background: '$fg',
+        },
       },
       "outline": {
         border: '1px solid $separator',
-        background: "linear-gradient(var(--mauve1), var(--mauve2))"
+        background: "linear-gradient($mauve1,$mauve2)",
+        "&:hover:not([disabled])": {
+          background: '$fg',
+        },
+      },
+      "primary": {
+        background: "linear-gradient($mauve4, $mauve5)",
+        border: '1px solid $separator',
+        "&:hover:not([disabled])": {
+          background: '$mauve5',
+        },
       }
     }
   }
@@ -65,8 +88,7 @@ const CodeContainer = styled('div', {
   display: 'flex',
   border: '1px solid $fgBorder',
   flexDirection: 'column',
-  minWidth: "320px",
-  maxWidth: "320px",
+
 });
 
 const OutputContainer = styled("pre", {
@@ -83,7 +105,6 @@ const OutputContainer = styled("pre", {
 
 const Box = styled('div', {
   display: 'flex',
-  gap: '$4'
 })
 
 
@@ -108,6 +129,13 @@ const Header = styled('div', {
 })
 
 
+export const DataAtom = atom<{
+  id: string,
+  name: string,
+  code: string,
+  result: Row[]
+}[]>([]);
+
 export default function Home() {
 
   const [selected, setSelected] = useState("")
@@ -116,21 +144,25 @@ export default function Home() {
   const [rightExpanded, setRightExpanded] = useState(true);
   const [leftExpanded, setLeftExpanded] = useState(true);
 
-  const [output, setOutput] = useState<Row[]>()
   const nodeTypes = useMemo(() => ({ customNode: CustomNode, codeNode: CodeNode }), []);
   const [draggedItem, setDraggedItem] = useState<"table" | "text" | "button" | "input" | null>(null)
   const [code, setCode] = useState("return fetch('https://api.github.com/users/daviddkkim/events').then(res => res.json())")
+  const [result, setResult] = useState<Row[]>()
+
   const [gridItems, setGridItems] = useState([
     <GridItem key="b" onClick={() => { setSelected("table") }} type={"table"}>
-      <ReadTable data={output ? output.slice(0, 5) : []} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
+      <ReadTable data={result ? result.slice(0, 5) : []} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
     </GridItem>,
-    <GridItem key="c" onClick={() => { setSelected("text") }} variant={"ghost"} type={"text"}>c</GridItem>,
+    <GridItem key="c" onClick={() => { setSelected("text") }} type={"text"}>c</GridItem>,
   ])
 
   const [layout, setLayout] = useState<Layout[]>([
     { i: "b", x: 1, y: 0, w: 4, h: 5, minW: 1, maxW: 12 },
     { i: "c", x: 4, y: 0, w: 1, h: 2, minW: 1, maxW: 12 }
   ])
+
+  const [dataAtom, setDataAtom] = useAtom(DataAtom)
+
 
   const onChange = useCallback((value: string, viewUpdate: any) => {
     setCode(value)
@@ -157,7 +189,7 @@ export default function Home() {
     if (draggedItem === "table") {
       const newGridItems = [...gridItems,
       <GridItem key={draggedItem + layoutItem.x} onClick={() => { setSelected("table") }} type={"table"}>
-        <ReadTable data={output ? output.slice(0, 5) : []} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
+        <ReadTable data={result ? result.slice(0, 5) : []} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
       </GridItem>,]
       setGridItems(newGridItems)
     }
@@ -181,11 +213,71 @@ export default function Home() {
         </Button>
       </Header>
       <Box>
-        <SidePanel expanded={leftExpanded} style={{ width: '200px' }} side={"left"}>
+        <SidePanel expanded={leftExpanded} side={"left"} nested={
+          <Box css={{
+            flexDirection: 'column',
+            gap: ' $4'
+          }}>
+            <>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                Data name
+                <input type="text" placeholder='Name this data' />
+              </label>
+            </>
+            <CodeContainer >
+              <CodeMirror
+                value={code}
+                height="200px"
+                width="365px"
+                theme={'dark'}
+                extensions={[javascript({ jsx: false, typescript: true }), EditorView.lineWrapping]}
+                onChange={onChange}
+              />
+              <button onClick={async () => {
+                try {
+                  const result = typeof f === "function" ? await f({ code }) : null;
+                  setResult(result);
+                  const outputEl = document.getElementById("output");
+                  if (outputEl) { outputEl.innerHTML = JSON.stringify(result, null, 2) }
+                } catch (e) {
+                  const outputEl = document.getElementById("output");
+                  console.error(e)
+                  if (outputEl) { outputEl.innerHTML = "Unable to run the code. Make sure your code is correct." }
+                }
+              }}> Run</button>
+              <OutputContainer id={"output"}></OutputContainer>
+            </CodeContainer>
+            <Button variant={"primary"} disabled={result ? false : true}
+              onClick={() => {
+                setDataAtom([
+                  ...dataAtom,
+                  {
+                    id: "name",
+                    name: 'data1',
+                    code: code,
+                    result: result ?? []
+                  }
+                ])
+              }}>
+              Save
+            </Button>
+          </Box>
+        }>
           Data
-          <Button variant={"outline"}>
+          <Button variant={"outline"} stretch>
             <FilePlusIcon /> Add data
           </Button>
+          {dataAtom &&
+            <Box css={{
+              gap: '$2',
+              flexDirection: 'column'
+            }}>
+              {dataAtom.map((data) => {
+                return (
+                  <Button variant={"ghost"} stretch> {data.name}</Button>
+                )
+              })}
+            </Box>}
         </SidePanel>
         <div style={{ width: '100%', height: "100%", padding: '16px' }} >
           <StyledGridLayout
@@ -213,6 +305,7 @@ export default function Home() {
               <Box css={{
                 width: '100%',
                 flexWrap: 'wrap',
+                gap: '$4'
               }}>
                 <ComponentCard draggable className='droppable-element' unselectable="on" onDragStart={(e) => {
                   e.dataTransfer.setData("text/plain", "")
@@ -262,10 +355,6 @@ export default function Home() {
 
             </>
           }
-          {/*  <input type="text" placeholder='https://api.github.com/users/${githubUser}/events' value={apiUrl} onChange={(event) => {
-                            setAPIUrl(event.currentTarget.value)
-                        }} /> */}
-
 
         </SidePanel>
       </Box>

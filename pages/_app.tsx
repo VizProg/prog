@@ -4,7 +4,6 @@ import { globalCss, darkTheme } from '@/stitches.config';
 import {
   ClerkProvider,
 } from "@clerk/nextjs";
-import { useRouter } from "next/router";
 
 import { ReactElement, ReactNode, useEffect, useState } from "react";
 import { NextPage } from "next";
@@ -97,8 +96,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   useEffect(() => {
     setMounted(true);
   }, []);
-  const { pathname } = useRouter();
-  const isPublicPage = publicPages.includes(pathname);
 
   const getLayout = Component.getLayout ?? ((page) => page);
 
