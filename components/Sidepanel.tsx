@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { styled } from "@/stitches.config";
-
 const Container = styled("div", {
+  position: 'relative',
   display: 'flex',
   flexDirection: 'column',
   gap: '$3',
@@ -40,10 +40,11 @@ const Box = styled('div', {
   display: 'flex',
 })
 
-export const SidePanel = ({ children, style, expanded = false, side = "right", nested }: { children: React.ReactNode, style?: React.CSSProperties, expanded?: boolean, nested?: React.ReactNode, side?: "left" | "right" }) => {
+
+export const SidePanel = ({ children, style, expanded = false, side = "right", nested, nestedOpen }: { children: React.ReactNode, style?: React.CSSProperties, expanded?: boolean, nested?: React.ReactNode, nestedOpen?: boolean, side?: "left" | "right" }) => {
 
   if (!expanded) return null;
-  if (!nested) return (
+  if (!nestedOpen) return (
     <Container style={{ ...style }} side={side}>
       {children}
     </Container>
@@ -56,9 +57,12 @@ export const SidePanel = ({ children, style, expanded = false, side = "right", n
       <Container style={{ ...style, borderRadius: 0 }} side={side} >
         {children}
       </Container>
-      <Container style={{ ...style }} side={side} nested={true}>
+
+      <Container style={{ ...style }} side={side} nested={true} >
         {nested}
+
       </Container>
+
     </Box>
   )
 

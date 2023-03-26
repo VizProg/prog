@@ -1,15 +1,13 @@
 import { styled } from '@/stitches.config'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState, useEffect } from 'react'
 import { ReadTable } from '@/components/readTable'
 import type { Row } from "@/types"
-import { CustomNode } from '@/components/customNode'
-import { CodeNode } from '@/components/CodeNode'
 import GridLayout, { Layout } from "react-grid-layout";
 import { SidePanel } from '@/components/Sidepanel'
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { EditorView } from "@codemirror/view";
-import { PinRightIcon, PinLeftIcon, FilePlusIcon } from '@radix-ui/react-icons'
+import { PinRightIcon, PinLeftIcon, FilePlusIcon, Cross1Icon } from '@radix-ui/react-icons'
 import { GridItem } from '@/components/GridItem'
 import { atom, useAtom, useAtomValue } from "jotai";
 
@@ -81,6 +79,9 @@ const CodeBlock = styled("pre", {
   border: '1px solid $fgBorder',
   maxHeight: '320px',
   overflow: 'auto',
+  width: '100%',
+  whiteSpace: 'pre-wrap',
+  wordWrap: 'break-word',
 })
 
 
@@ -139,19 +140,16 @@ export const DataAtom = atom<{
 export default function Home() {
 
   const [selected, setSelected] = useState("")
-  const [apiData, setAPIData] = useState<Row[]>([])
-  const [apiUrl, setAPIUrl] = useState("https://api.github.com/users/daviddkkim/events")
   const [rightExpanded, setRightExpanded] = useState(true);
   const [leftExpanded, setLeftExpanded] = useState(true);
-
-  const nodeTypes = useMemo(() => ({ customNode: CustomNode, codeNode: CodeNode }), []);
+  const [nestedOpen, setNestedOpen] = useState(false);
   const [draggedItem, setDraggedItem] = useState<"table" | "text" | "button" | "input" | null>(null)
   const [code, setCode] = useState("return fetch('https://api.github.com/users/daviddkkim/events').then(res => res.json())")
-  const [result, setResult] = useState<Row[]>()
-
+  const [dataResult, setDataResult] = useState<Row[] | null>(null)
+  
   const [gridItems, setGridItems] = useState([
     <GridItem key="b" onClick={() => { setSelected("table") }} type={"table"}>
-      <ReadTable data={result ? result.slice(0, 5) : []} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
+      <ReadTable data={dataResult ? dataResult.slice(0, 5) : []} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
     </GridItem>,
     <GridItem key="c" onClick={() => { setSelected("text") }} type={"text"}>c</GridItem>,
   ])
@@ -189,7 +187,7 @@ export default function Home() {
     if (draggedItem === "table") {
       const newGridItems = [...gridItems,
       <GridItem key={draggedItem + layoutItem.x} onClick={() => { setSelected("table") }} type={"table"}>
-        <ReadTable data={result ? result.slice(0, 5) : []} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
+        <ReadTable data={dataResult ? dataResult.slice(0, 5) : []} selected={selected === "table" ? true : false} onClick={() => { setSelected("read_table") }} />
       </GridItem>,]
       setGridItems(newGridItems)
     }
@@ -202,6 +200,71 @@ export default function Home() {
     }
   };
 
+
+  const newData = (<Box css={{
+    flexDirection: 'column',
+    gap: ' $4'
+  }}>
+    <>
+      <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        Data name
+        <input type="text" placeholder='Name this data' />
+      </label>
+    </>
+    <CodeContainer >
+      <CodeMirror
+        value={code}
+        height="200px"
+        width="365px"
+        theme={'dark'}
+        extensions={[javascript({ jsx: false, typescript: true }), EditorView.lineWrapping]}
+        onChange={onChange}
+      />
+      <button onClick={async () => {
+        try {
+          const returnedVal = typeof f === "function" ? await f({ code }) : null;
+          setDataResult(returnedVal);
+
+        /*   const outputEl = document.getElementById("output");
+          if (outputEl) { outputEl.innerHTML = JSON.stringify(returnedVal, null, 2) } */
+        } catch (e) {
+          const outputEl = document.getElementById("output");
+          console.error(e)
+          if (outputEl) { outputEl.innerHTML = "Unable to run the code. Make sure your code is correct." }
+        }
+      }}> Run</button>
+      <OutputContainer id={"output"}>
+      {JSON.stringify(dataResult,null, 2)}
+      </OutputContainer>
+    </CodeContainer>
+    <Button
+      variant={"primary"}
+      disabled={dataResult ? false : true}
+      onClick={() => {
+        setDataAtom([
+          ...dataAtom,
+          {
+            id: "name",
+            name: 'data1',
+            code: code,
+            result: dataResult ? dataResult : []
+          }
+        ])
+      }}>
+      Save
+    </Button>
+    <Button
+      variant={"ghost"}
+      css={{
+        position: 'absolute',
+        right: 8,
+        top: 8
+      }} onClick={() => { setNestedOpen(false) }}> <Cross1Icon /> </Button>
+  </Box>
+  )
+
+  const [nestedView, setNestedView] = useState<React.ReactNode | null>(newData)
+
   return (
     <Main>
       <Header>
@@ -213,58 +276,12 @@ export default function Home() {
         </Button>
       </Header>
       <Box>
-        <SidePanel expanded={leftExpanded} side={"left"} nested={
-          <Box css={{
-            flexDirection: 'column',
-            gap: ' $4'
-          }}>
-            <>
-              <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                Data name
-                <input type="text" placeholder='Name this data' />
-              </label>
-            </>
-            <CodeContainer >
-              <CodeMirror
-                value={code}
-                height="200px"
-                width="365px"
-                theme={'dark'}
-                extensions={[javascript({ jsx: false, typescript: true }), EditorView.lineWrapping]}
-                onChange={onChange}
-              />
-              <button onClick={async () => {
-                try {
-                  const result = typeof f === "function" ? await f({ code }) : null;
-                  setResult(result);
-                  const outputEl = document.getElementById("output");
-                  if (outputEl) { outputEl.innerHTML = JSON.stringify(result, null, 2) }
-                } catch (e) {
-                  const outputEl = document.getElementById("output");
-                  console.error(e)
-                  if (outputEl) { outputEl.innerHTML = "Unable to run the code. Make sure your code is correct." }
-                }
-              }}> Run</button>
-              <OutputContainer id={"output"}></OutputContainer>
-            </CodeContainer>
-            <Button variant={"primary"} disabled={result ? false : true}
-              onClick={() => {
-                setDataAtom([
-                  ...dataAtom,
-                  {
-                    id: "name",
-                    name: 'data1',
-                    code: code,
-                    result: result ?? []
-                  }
-                ])
-              }}>
-              Save
-            </Button>
-          </Box>
-        }>
+        <SidePanel expanded={leftExpanded} side={"left"} nestedOpen={nestedOpen} nested={nestedView}>
           Data
-          <Button variant={"outline"} stretch>
+          <Button variant={"outline"} stretch onClick={() => {
+            setNestedOpen(true);
+            setNestedView(newData)
+          }}>
             <FilePlusIcon /> Add data
           </Button>
           {dataAtom &&
@@ -274,7 +291,21 @@ export default function Home() {
             }}>
               {dataAtom.map((data) => {
                 return (
-                  <Button variant={"ghost"} stretch> {data.name}</Button>
+                  <Button key={data.id} variant={"ghost"} stretch onClick={() => {
+                    setNestedView(
+                      <Box css={{
+                        flexDirection:'column',
+                        gap: '$4'
+                      }}>
+                        <CodeBlock>
+                          {data.code}
+                        </CodeBlock>
+                        <OutputContainer>
+                          {JSON.stringify(data.result, null, 2)}
+                        </OutputContainer>
+                      </Box>
+                    )
+                  }}> {data.name}</Button>
                 )
               })}
             </Box>}
@@ -293,7 +324,6 @@ export default function Home() {
             {gridItems.map((item) => {
               return item;
             })}
-
           </StyledGridLayout>
         </div>
 
@@ -347,7 +377,7 @@ export default function Home() {
                   console.log(e)
                   console.log("here")
                 }}>
-                  {JSON.stringify(apiData, null, 2)}
+                  {JSON.stringify(dataResult, null, 2)}
                 </CodeBlock>
               </div>
 
@@ -357,7 +387,7 @@ export default function Home() {
           }
 
         </SidePanel>
-      </Box>
+      </Box >
     </Main >
   )
 }
